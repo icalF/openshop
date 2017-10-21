@@ -1,5 +1,5 @@
-hash: 930069139ed29a30f66b654ae16d716d9ca86fd842dffca310cf900bbc10bbf7
-updated: 2017-10-21T16:34:58.768314052+07:00
+hash: 8498190dc973344015f17566ceee319a1cdd909804c1a8bd885f557ad6c282ef
+updated: 2017-10-22T02:06:16.724730902+07:00
 imports:
 - name: github.com/aymerick/raymond
   version: 72acac2207479d21dd45898c2a4264246c818148
@@ -25,6 +25,10 @@ imports:
   version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
 - name: github.com/iris-contrib/formBinder
   version: ad9fb86c356f971f30319c40ddbdcf72129a2791
+- name: github.com/jinzhu/gorm
+  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+- name: github.com/jinzhu/inflection
+  version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/Joker/jade
   version: 35b3f5bdbcc920cd31f4870536dbc63be8530541
 - name: github.com/json-iterator/go
@@ -77,6 +81,8 @@ imports:
   - gzip
 - name: github.com/klauspost/cpuid
   version: ae7887de9fa5d2db4eaa8174a7eff2c1ac00f2da
+- name: github.com/lib/pq
+  version: b0d5024adb34b4122c6ee7eeb6ab511f7223222d
 - name: github.com/microcosm-cc/bluemonday
   version: 68fecaef60268522d2ac3f0123cec9d3bcab7b6e
 - name: github.com/russross/blackfriday

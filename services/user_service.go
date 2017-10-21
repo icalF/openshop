@@ -23,14 +23,12 @@ type userService struct {
 }
 
 func (s *userService) GetAll() []models.User {
-	return s.dao.SelectMany(func(_ models.User) bool {
-		return true
-	}, -1)
+	return s.dao.SelectMany(map[string]string{}, 0)
 }
 
 func (s *userService) GetByID(id int64) (models.User, bool) {
-	return s.dao.Select(func(m models.User) bool {
-		return m.ID == id
+	return s.dao.Select(map[string]string{
+		"id": string(id),
 	})
 }
 
@@ -39,7 +37,7 @@ func (s *userService) InsertOrUpdate(user models.User) (models.User, error) {
 }
 
 func (s *userService) DeleteByID(id int64) bool {
-	return s.dao.Delete(func(m models.User) bool {
-		return m.ID == id
-	}, 1)
+	return s.dao.Delete(map[string]string{
+		"id": string(id),
+	})
 }

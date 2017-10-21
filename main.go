@@ -1,7 +1,10 @@
 package main
 
 import (
+	"log"
+
 	"github.com/kataras/iris"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 
 	"github.com/icalF/openshop/web/controllers"
 	"github.com/icalF/openshop/datasource"
@@ -12,7 +15,12 @@ import (
 func main() {
 	app := iris.New()
 
-	userDAO := dao.NewUserDAO(datasource.Users)
+	dbConn, err := datasource.NewMysqlConnection()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	userDAO := dao.NewUserDAO(dbConn)
 	userService := services.NewUserService(userDAO)
 
 	app.Controller("/user", new(controllers.UserController),
@@ -28,4 +36,5 @@ func main() {
 		iris.WithOptimizations, // enables faster json serialization and more
 	)
 
+	defer dbConn.Close()
 }
