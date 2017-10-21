@@ -1,0 +1,6 @@
+package: github.com/icalF/openshop
+import:
+- package: github.com/kataras/iris
+  version: ^8.5.2
+- package: github.com/imdario/mergo
+  version: ^0.2.4
