@@ -1,15 +1,15 @@
 package dao
 
 import (
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/jinzhu/gorm"
 )
 
 type OrderDAO interface {
-	Select(query Query) (model models.Order, found bool)
-	SelectMany(query Query, limit int) (results []models.Order)
+	Select(query Query) (model datamodels.Order, found bool)
+	SelectMany(query Query, limit int) (results []datamodels.Order)
 
-	Insert(model models.Order) (models.Order, error)
+	Insert(model datamodels.Order) (datamodels.Order, error)
 	Delete(query Query) (deleted bool)
 }
 
@@ -21,28 +21,26 @@ func NewOrderDAO(connection *gorm.DB) OrderDAO {
 	return &orderRepository{source: connection}
 }
 
-func (r *orderRepository) Select(query Query) (models.Order, bool) {
-	order := models.Order{}
+func (r *orderRepository) Select(query Query) (datamodels.Order, bool) {
+	order := datamodels.Order{}
 	if err := r.source.Where(query).First(&order).Error; err != nil {
-		return models.Order{}, false
+		return datamodels.Order{}, false
 	}
 	return order, true
 }
 
-func (r *orderRepository) SelectMany(query Query, limit int) (results []models.Order) {
-	orders := new([]models.Order)
+func (r *orderRepository) SelectMany(query Query, limit int) (results []datamodels.Order) {
+	orders := new([]datamodels.Order)
 	r.source.Where(query).Find(&orders).Limit(limit)
 	return *orders
 }
 
-func (r *orderRepository) Insert(order models.Order) (models.Order, error) {
+func (r *orderRepository) Insert(order datamodels.Order) (datamodels.Order, error) {
 	err := r.source.Create(&order).Error
 	return order, err
 }
 
 func (r *orderRepository) Delete(query Query) bool {
-	if err := r.source.Delete(models.Order{}, query).Error; err != nil {
-		return false
-	}
-	return true
+	err := r.source.Delete(datamodels.Order{}, query).Error
+	return err == nil
 }

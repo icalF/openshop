@@ -1,14 +1,14 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/dao"
 )
 
 type CouponService interface {
-	GetAll() []models.Coupon
-	GetByID(id int64) (models.Coupon, bool)
-	InsertOrUpdate(coupon models.Coupon) (models.Coupon, error)
+	GetAll() []datamodels.Coupon
+	GetByID(id int64) (datamodels.Coupon, bool)
+	InsertOrUpdate(coupon datamodels.Coupon) (datamodels.Coupon, error)
 	DeleteByID(id int64) bool
 }
 
@@ -22,17 +22,17 @@ type couponService struct {
 	dao dao.CouponDAO
 }
 
-func (s *couponService) GetAll() []models.Coupon {
+func (s *couponService) GetAll() []datamodels.Coupon {
 	return s.dao.SelectMany(map[string]string{}, 0)
 }
 
-func (s *couponService) GetByID(id int64) (models.Coupon, bool) {
+func (s *couponService) GetByID(id int64) (datamodels.Coupon, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
 }
 
-func (s *couponService) InsertOrUpdate(coupon models.Coupon) (models.Coupon, error) {
+func (s *couponService) InsertOrUpdate(coupon datamodels.Coupon) (datamodels.Coupon, error) {
 	return s.dao.InsertOrUpdate(coupon)
 }
 

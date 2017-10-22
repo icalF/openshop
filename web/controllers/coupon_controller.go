@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
 )
 
@@ -13,7 +13,7 @@ type CouponController struct {
 }
 
 // GET /coupon/
-func (c *CouponController) Get() (results []models.Coupon) {
+func (c *CouponController) Get() (results []datamodels.Coupon) {
 	return c.Service.GetAll()
 }
 
@@ -29,7 +29,7 @@ func (c *CouponController) GetBy(id int64) (interface{}, int) {
 
 // POST /coupon/
 func (c *CouponController) Post() (interface{}, int) {
-	coupon := models.Coupon{}
+	coupon := datamodels.Coupon{}
 	err := c.Ctx.ReadJSON(&coupon)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest
@@ -50,7 +50,7 @@ func (c *CouponController) Post() (interface{}, int) {
 
 // PUT /coupon/{id: int}
 func (c *CouponController) PutBy(id int64) (interface{}, int) {
-	coupon := models.Coupon{}
+	coupon := datamodels.Coupon{}
 	err := c.Ctx.ReadJSON(&coupon)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest

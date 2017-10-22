@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
 )
 
@@ -13,7 +13,7 @@ type ProductController struct {
 }
 
 // GET /product/
-func (c *ProductController) Get() (results []models.Product) {
+func (c *ProductController) Get() (results []datamodels.Product) {
 	return c.Service.GetAll()
 }
 
@@ -29,7 +29,7 @@ func (c *ProductController) GetBy(id int64) (interface{}, int) {
 
 // POST /product/
 func (c *ProductController) Post() (interface{}, int) {
-	product := models.Product{}
+	product := datamodels.Product{}
 	err := c.Ctx.ReadJSON(&product)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest
@@ -50,7 +50,7 @@ func (c *ProductController) Post() (interface{}, int) {
 
 // PUT /product/{id: int}
 func (c *ProductController) PutBy(id int64) (interface{}, int) {
-	product := models.Product{}
+	product := datamodels.Product{}
 	err := c.Ctx.ReadJSON(&product)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest

@@ -1,14 +1,14 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models"
 	"github.com/icalF/openshop/dao"
+	"github.com/icalF/openshop/models/datamodels"
 )
 
 type UserService interface {
-	GetAll() []models.User
-	GetByID(id int64) (models.User, bool)
-	InsertOrUpdate(user models.User) (models.User, error)
+	GetAll() []datamodels.User
+	GetByID(id int64) (datamodels.User, bool)
+	InsertOrUpdate(user datamodels.User) (datamodels.User, error)
 	DeleteByID(id int64) bool
 }
 
@@ -22,17 +22,17 @@ type userService struct {
 	dao dao.UserDAO
 }
 
-func (s *userService) GetAll() []models.User {
+func (s *userService) GetAll() []datamodels.User {
 	return s.dao.SelectMany(map[string]string{}, 0)
 }
 
-func (s *userService) GetByID(id int64) (models.User, bool) {
+func (s *userService) GetByID(id int64) (datamodels.User, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
 }
 
-func (s *userService) InsertOrUpdate(user models.User) (models.User, error) {
+func (s *userService) InsertOrUpdate(user datamodels.User) (datamodels.User, error) {
 	return s.dao.InsertOrUpdate(user)
 }
 

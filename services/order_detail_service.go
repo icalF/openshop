@@ -1,14 +1,14 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models"
 	"github.com/icalF/openshop/dao"
+	"github.com/icalF/openshop/models/datamodels"
 )
 
 type OrderDetailService interface {
-	GetAll() []models.OrderDetail
-	GetByID(id int64) (models.OrderDetail, bool)
-	InsertOrUpdate(orderDetail models.OrderDetail) (models.OrderDetail, error)
+	GetAll() []datamodels.OrderDetail
+	GetByID(id int64) (datamodels.OrderDetail, bool)
+	InsertOrUpdate(orderDetail datamodels.OrderDetail) (datamodels.OrderDetail, error)
 	DeleteByID(id int64) bool
 }
 
@@ -22,17 +22,17 @@ type orderDetailService struct {
 	dao dao.OrderDetailDAO
 }
 
-func (s *orderDetailService) GetAll() []models.OrderDetail {
+func (s *orderDetailService) GetAll() []datamodels.OrderDetail {
 	return s.dao.SelectMany(map[string]string{}, 0)
 }
 
-func (s *orderDetailService) GetByID(id int64) (models.OrderDetail, bool) {
+func (s *orderDetailService) GetByID(id int64) (datamodels.OrderDetail, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
 }
 
-func (s *orderDetailService) InsertOrUpdate(orderDetail models.OrderDetail) (models.OrderDetail, error) {
+func (s *orderDetailService) InsertOrUpdate(orderDetail datamodels.OrderDetail) (datamodels.OrderDetail, error) {
 	return s.dao.InsertOrUpdate(orderDetail)
 }
 

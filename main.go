@@ -10,6 +10,7 @@ import (
 	"github.com/icalF/openshop/datasource"
 	"github.com/icalF/openshop/services"
 	"github.com/icalF/openshop/dao"
+	"github.com/kataras/iris/_examples/mvc/overview/web/middleware"
 )
 
 func main() {
@@ -23,30 +24,33 @@ func main() {
 	userDAO := dao.NewUserDAO(dbConn)
 	couponDAO := dao.NewCouponDAO(dbConn)
 	productDAO := dao.NewProductDAO(dbConn)
+	orderDetailDAO := dao.NewOrderDetailDAO(dbConn)
+	orderDAO := dao.NewOrderDAO(dbConn)
 
 	userService := services.NewUserService(userDAO)
 	couponService := services.NewCouponService(couponDAO)
 	productService := services.NewProductService(productDAO)
+	orderDetailService := services.NewOrderDetailService(orderDetailDAO)
+	orderService := services.NewOrderService(orderDAO)
+
+	app.Party("/", middleware.BasicAuth)
 
 	app.Controller("/user", new(controllers.UserController),
 		userService,
-		// Add the basic authentication(admin:password) middleware
-		// for the /movies based requests.
 		// middleware.BasicAuth
 	)
 
 	app.Controller("/coupon", new(controllers.CouponController),
 		couponService,
-		// Add the basic authentication(admin:password) middleware
-		// for the /movies based requests.
-		// middleware.BasicAuth
 	)
 
 	app.Controller("/product", new(controllers.ProductController),
 		productService,
-		// Add the basic authentication(admin:password) middleware
-		// for the /movies based requests.
-		// middleware.BasicAuth
+	)
+
+	app.Controller("/order", new(controllers.OrderController),
+		orderService,
+		orderDetailService,
 	)
 
 	app.Run(

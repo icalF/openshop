@@ -1,14 +1,14 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/dao"
 )
 
 type ShipmentService interface {
-	GetAll() []models.Shipment
-	GetByID(id int64) (models.Shipment, bool)
-	InsertOrUpdate(shipment models.Shipment) (models.Shipment, error)
+	GetAll() []datamodels.Shipment
+	GetByID(id int64) (datamodels.Shipment, bool)
+	InsertOrUpdate(shipment datamodels.Shipment) (datamodels.Shipment, error)
 	DeleteByID(id int64) bool
 }
 
@@ -22,17 +22,17 @@ type shipmentService struct {
 	dao dao.ShipmentDAO
 }
 
-func (s *shipmentService) GetAll() []models.Shipment {
+func (s *shipmentService) GetAll() []datamodels.Shipment {
 	return s.dao.SelectMany(map[string]string{}, 0)
 }
 
-func (s *shipmentService) GetByID(id int64) (models.Shipment, bool) {
+func (s *shipmentService) GetByID(id int64) (datamodels.Shipment, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
 }
 
-func (s *shipmentService) InsertOrUpdate(shipment models.Shipment) (models.Shipment, error) {
+func (s *shipmentService) InsertOrUpdate(shipment datamodels.Shipment) (datamodels.Shipment, error) {
 	return s.dao.InsertOrUpdate(shipment)
 }
 

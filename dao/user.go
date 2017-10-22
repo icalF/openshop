@@ -1,15 +1,15 @@
 package dao
 
 import (
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/jinzhu/gorm"
 )
 
 type UserDAO interface {
-	Select(query Query) (model models.User, found bool)
-	SelectMany(query Query, limit int) (results []models.User)
+	Select(query Query) (model datamodels.User, found bool)
+	SelectMany(query Query, limit int) (results []datamodels.User)
 
-	InsertOrUpdate(model models.User) (models.User, error)
+	InsertOrUpdate(model datamodels.User) (datamodels.User, error)
 	Delete(query Query) (deleted bool)
 }
 
@@ -21,22 +21,22 @@ func NewUserDAO(connection *gorm.DB) UserDAO {
 	return &userRepository{source: connection}
 }
 
-func (r *userRepository) Select(query Query) (models.User, bool) {
-	user := models.User{}
+func (r *userRepository) Select(query Query) (datamodels.User, bool) {
+	user := datamodels.User{}
 	if err := r.source.Where(query).First(&user).Error; err != nil {
-		return models.User{}, false
+		return datamodels.User{}, false
 	}
 	return user, true
 }
 
-func (r *userRepository) SelectMany(query Query, limit int) (results []models.User) {
-	users := new([]models.User)
+func (r *userRepository) SelectMany(query Query, limit int) (results []datamodels.User) {
+	users := new([]datamodels.User)
 	r.source.Where(query).Find(&users).Limit(limit)
 	return *users
 }
 
-func (r *userRepository) InsertOrUpdate(user models.User) (_ models.User, err error) {
-	var oldUser models.User
+func (r *userRepository) InsertOrUpdate(user datamodels.User) (_ datamodels.User, err error) {
+	var oldUser datamodels.User
 	if err := r.source.First(&oldUser).Error; err != nil {
 		r.source.Create(&user)
 	} else {
@@ -47,7 +47,7 @@ func (r *userRepository) InsertOrUpdate(user models.User) (_ models.User, err er
 }
 
 func (r *userRepository) Delete(query Query) bool {
-	if err := r.source.Delete(models.User{}, query).Error; err != nil {
+	if err := r.source.Delete(datamodels.User{}, query).Error; err != nil {
 		return false
 	}
 	return true

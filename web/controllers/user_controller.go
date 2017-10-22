@@ -3,8 +3,8 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models"
 	"github.com/icalF/openshop/services"
+	"github.com/icalF/openshop/models/datamodels"
 )
 
 type UserController struct {
@@ -13,7 +13,7 @@ type UserController struct {
 }
 
 // GET /user/
-func (c *UserController) Get() (results []models.User) {
+func (c *UserController) Get() (results []datamodels.User) {
 	return c.Service.GetAll()
 }
 
@@ -29,7 +29,7 @@ func (c *UserController) GetBy(id int64) (interface{}, int) {
 
 // POST /user/
 func (c *UserController) Post() (interface{}, int) {
-	user := models.User{}
+	user := datamodels.User{}
 	err := c.Ctx.ReadJSON(&user)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest
@@ -50,7 +50,7 @@ func (c *UserController) Post() (interface{}, int) {
 
 // PUT /user/{id: int}
 func (c *UserController) PutBy(id int64) (interface{}, int) {
-	user := models.User{}
+	user := datamodels.User{}
 	err := c.Ctx.ReadJSON(&user)
 	if err != nil {
 		return "Field(s) parsing error", iris.StatusBadRequest

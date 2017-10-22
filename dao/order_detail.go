@@ -1,15 +1,15 @@
 package dao
 
 import (
-	"github.com/icalF/openshop/models"
+	"github.com/icalF/openshop/models/datamodels"
 	"github.com/jinzhu/gorm"
 )
 
 type OrderDetailDAO interface {
-	Select(query Query) (model models.OrderDetail, found bool)
-	SelectMany(query Query, limit int) (results []models.OrderDetail)
+	Select(query Query) (model datamodels.OrderDetail, found bool)
+	SelectMany(query Query, limit int) (results []datamodels.OrderDetail)
 
-	InsertOrUpdate(model models.OrderDetail) (models.OrderDetail, error)
+	InsertOrUpdate(model datamodels.OrderDetail) (datamodels.OrderDetail, error)
 	Delete(query Query) (deleted bool)
 }
 
@@ -21,22 +21,22 @@ func NewOrderDetailDAO(connection *gorm.DB) OrderDetailDAO {
 	return &orderDetailRepository{source: connection}
 }
 
-func (r *orderDetailRepository) Select(query Query) (models.OrderDetail, bool) {
-	orderDetail := models.OrderDetail{}
+func (r *orderDetailRepository) Select(query Query) (datamodels.OrderDetail, bool) {
+	orderDetail := datamodels.OrderDetail{}
 	if err := r.source.Where(query).First(&orderDetail).Error; err != nil {
-		return models.OrderDetail{}, false
+		return datamodels.OrderDetail{}, false
 	}
 	return orderDetail, true
 }
 
-func (r *orderDetailRepository) SelectMany(query Query, limit int) (results []models.OrderDetail) {
-	orderDetails := new([]models.OrderDetail)
+func (r *orderDetailRepository) SelectMany(query Query, limit int) (results []datamodels.OrderDetail) {
+	orderDetails := new([]datamodels.OrderDetail)
 	r.source.Where(query).Find(&orderDetails).Limit(limit)
 	return *orderDetails
 }
 
-func (r *orderDetailRepository) InsertOrUpdate(orderDetail models.OrderDetail) (_ models.OrderDetail, err error) {
-	var oldOrderDetail models.OrderDetail
+func (r *orderDetailRepository) InsertOrUpdate(orderDetail datamodels.OrderDetail) (_ datamodels.OrderDetail, err error) {
+	var oldOrderDetail datamodels.OrderDetail
 	if err := r.source.First(&oldOrderDetail).Error; err != nil {
 		r.source.Create(&orderDetail)
 	} else {
@@ -47,8 +47,6 @@ func (r *orderDetailRepository) InsertOrUpdate(orderDetail models.OrderDetail) (
 }
 
 func (r *orderDetailRepository) Delete(query Query) bool {
-	if err := r.source.Delete(models.OrderDetail{}, query).Error; err != nil {
-		return false
-	}
-	return true
+	err := r.source.Delete(datamodels.Order{}, query).Error
+	return err == nil
 }
