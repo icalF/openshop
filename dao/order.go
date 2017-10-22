@@ -9,7 +9,7 @@ type OrderDAO interface {
 	Select(query Query) (model datamodels.Order, found bool)
 	SelectMany(query Query, limit int) (results []datamodels.Order)
 
-	Insert(model datamodels.Order) (datamodels.Order, error)
+	InsertOrUpdate(model datamodels.Order) (datamodels.Order, error)
 	Delete(query Query) (deleted bool)
 }
 
@@ -35,8 +35,14 @@ func (r *orderRepository) SelectMany(query Query, limit int) (results []datamode
 	return *orders
 }
 
-func (r *orderRepository) Insert(order datamodels.Order) (datamodels.Order, error) {
-	err := r.source.Create(&order).Error
+func (r *orderRepository) InsertOrUpdate(order datamodels.Order) (_ datamodels.Order, err error) {
+	var oldOrder datamodels.User
+	if err := r.source.First(&oldOrder, order.ID).Error; err != nil {
+		r.source.Create(&order)
+	} else {
+		r.source.Model(&oldOrder).Update(&order)
+	}
+
 	return order, err
 }
 

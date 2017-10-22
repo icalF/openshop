@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/dao"
 )
@@ -8,7 +10,8 @@ import (
 type OrderService interface {
 	GetAll() []datamodels.Order
 	GetByID(id int64) (datamodels.Order, bool)
-	Insert(order datamodels.Order) (datamodels.Order, error)
+	InsertOrUpdate(order datamodels.Order) (datamodels.Order, error)
+	InsertCoupon(id int64, code string) (bool, error)
 	DeleteByID(id int64) bool
 }
 
@@ -32,8 +35,22 @@ func (s *orderService) GetByID(id int64) (datamodels.Order, bool) {
 	})
 }
 
-func (s *orderService) Insert(order datamodels.Order) (datamodels.Order, error) {
-	return s.dao.Insert(order)
+func (s *orderService) InsertOrUpdate(order datamodels.Order) (datamodels.Order, error) {
+	return s.dao.InsertOrUpdate(order)
+}
+
+func (s *orderService) InsertCoupon(id int64, code string) (bool, error) {
+	order, found := s.GetByID(id)
+	if !found {
+		return false, errors.New("coupon code couldn't be found")
+	}
+	if order.Status != datamodels.UNSUBMITTED {
+		return false, errors.New("coupon cannot be applied to submitted order")
+	}
+
+	order.VoucherCode = code
+	_, err := s.dao.InsertOrUpdate(order)
+	return true, err
 }
 
 func (s *orderService) DeleteByID(id int64) bool {

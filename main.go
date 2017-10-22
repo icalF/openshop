@@ -24,14 +24,16 @@ func main() {
 	userDAO := dao.NewUserDAO(dbConn)
 	couponDAO := dao.NewCouponDAO(dbConn)
 	productDAO := dao.NewProductDAO(dbConn)
+	paymentDAO := dao.NewPaymentDAO(dbConn)
 	orderDetailDAO := dao.NewOrderDetailDAO(dbConn)
 	orderDAO := dao.NewOrderDAO(dbConn)
 
 	userService := services.NewUserService(userDAO)
-	couponService := services.NewCouponService(couponDAO)
 	productService := services.NewProductService(productDAO)
+	paymentService := services.NewPaymentService(paymentDAO)
 	orderDetailService := services.NewOrderDetailService(orderDetailDAO)
 	orderService := services.NewOrderService(orderDAO)
+	couponService := services.NewCouponService(couponDAO, orderService)
 
 	app.Party("/", middleware.BasicAuth)
 
@@ -49,8 +51,10 @@ func main() {
 	)
 
 	app.Controller("/order", new(controllers.OrderController),
+		couponService,
 		orderService,
 		orderDetailService,
+		paymentService,
 	)
 
 	app.Run(

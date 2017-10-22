@@ -9,8 +9,10 @@ import (
 
 type OrderController struct {
 	BaseController
+	CouponService services.CouponService
 	OrderService services.OrderService
 	OrderDetailService services.OrderDetailService
+	PaymentService services.PaymentService
 }
 
 // GET /order/
@@ -41,7 +43,7 @@ func (c *OrderController) Post() (interface{}, int) {
 		return err, iris.StatusBadRequest
 	}
 
-	res, err := c.OrderService.Insert(datamodels.NewOrder(order.UserID))
+	res, err := c.OrderService.InsertOrUpdate(datamodels.NewOrder(order.UserID))
 	if err != nil {
 		return err, iris.StatusInternalServerError
 	}
@@ -82,6 +84,50 @@ func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
 	}
 
 	return res, iris.StatusOK
+}
+
+// GET /order/{id: int}/coupon
+func (c *OrderController) GetByCoupon(orderId int64) (interface{}, int) {
+	coupon, found := c.CouponService.GetByOrderID(orderId)
+	if !found {
+		return nil, iris.StatusNotFound
+	}
+
+	return coupon, iris.StatusOK
+}
+
+// POST /order/{id: int}/coupon
+func (c *OrderController) PostByCoupon(orderId int64) (interface{}, int) {
+	var code string
+	if err := c.Ctx.ReadJSON(&code); err != nil || len(code) < 1 {
+		return nil, iris.StatusBadRequest
+	}
+
+	found, err := c.OrderService.InsertCoupon(orderId, code)
+	if !found {
+		return iris.Map{"message": "coupon with code not found"}, iris.StatusNotFound
+	}
+	if err != nil {
+		return err, iris.StatusInternalServerError
+	}
+
+	return iris.Map{"couponApplied": code}, iris.StatusOK
+}
+
+// DELETE /order/{id: int}/coupon
+func (c *OrderController) DeleteByCoupon(orderId int64) (interface{}, int) {
+	order, found := c.OrderService.GetByID(orderId)
+	if !found {
+		return nil, iris.StatusNotFound
+	}
+
+	oldCode := order.VoucherCode
+	order.VoucherCode = ""
+	if _, err := c.OrderService.InsertOrUpdate(order); err != nil {
+		return nil, iris.StatusInternalServerError
+	}
+
+	return iris.Map{"deleted": oldCode}, iris.StatusOK
 }
 
 // GET /order/{id: int}/detail/{id: int}
