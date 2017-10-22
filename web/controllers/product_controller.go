@@ -14,7 +14,7 @@ type ProductController struct {
 
 // GET /product/
 func (c *ProductController) Get() (results []datamodels.Product) {
-	return c.Service.GetAll()
+	return c.Service.GetAllPurchaseable()
 }
 
 // GET /product/{id: int}
@@ -74,7 +74,7 @@ func (c *ProductController) PutBy(id int64) (interface{}, int) {
 func (c *ProductController) DeleteBy(id int64) (interface{}, int) {
 	wasDel := c.Service.DeleteByID(id)
 	if wasDel {
-		return iris.Map{"deleted": id}, iris.StatusAccepted
+		return iris.Map{"deleted": id}, iris.StatusOK
 	}
 	return nil, iris.StatusInternalServerError
 }

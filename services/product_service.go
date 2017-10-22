@@ -7,6 +7,7 @@ import (
 
 type ProductService interface {
 	GetAll() []datamodels.Product
+	GetAllPurchaseable() []datamodels.Product
 	GetByID(id int64) (datamodels.Product, bool)
 	InsertOrUpdate(product datamodels.Product) (datamodels.Product, error)
 	DeleteByID(id int64) bool
@@ -23,7 +24,11 @@ type productService struct {
 }
 
 func (s *productService) GetAll() []datamodels.Product {
-	return s.dao.SelectMany(map[string]string{}, 0)
+	return s.dao.SelectMany(map[string]string{}, 1, 0)
+}
+
+func (s *productService) GetAllPurchaseable() []datamodels.Product {
+	return s.dao.SelectMany(map[string]string{}, 1, 1)
 }
 
 func (s *productService) GetByID(id int64) (datamodels.Product, bool) {

@@ -23,7 +23,7 @@ type userService struct {
 }
 
 func (s *userService) GetAll() []datamodels.User {
-	return s.dao.SelectMany(map[string]string{}, 0)
+	return s.dao.SelectMany(map[string]string{}, 1)
 }
 
 func (s *userService) GetByID(id int64) (datamodels.User, bool) {

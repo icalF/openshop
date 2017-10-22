@@ -56,7 +56,7 @@ func main() {
 	app.Run(
 		iris.Addr("localhost:8080"),
 		iris.WithoutVersionChecker,
-		iris.WithoutServerError(iris.ErrServerClosed),
+		//iris.WithoutServerError(iris.ErrServerClosed),
 		iris.WithOptimizations, // enables faster json serialization and more
 	)
 

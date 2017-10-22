@@ -37,7 +37,7 @@ func (r *userRepository) SelectMany(query Query, limit int) (results []datamodel
 
 func (r *userRepository) InsertOrUpdate(user datamodels.User) (_ datamodels.User, err error) {
 	var oldUser datamodels.User
-	if err := r.source.First(&oldUser).Error; err != nil {
+	if err := r.source.First(&oldUser, user.ID).Error; err != nil {
 		r.source.Create(&user)
 	} else {
 		r.source.Model(&oldUser).Update(&user)
@@ -47,8 +47,6 @@ func (r *userRepository) InsertOrUpdate(user datamodels.User) (_ datamodels.User
 }
 
 func (r *userRepository) Delete(query Query) bool {
-	if err := r.source.Delete(datamodels.User{}, query).Error; err != nil {
-		return false
-	}
-	return true
+	err := r.source.Delete(datamodels.User{}, query).Error
+	return err == nil
 }

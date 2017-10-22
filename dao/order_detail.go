@@ -37,7 +37,7 @@ func (r *orderDetailRepository) SelectMany(query Query, limit int) (results []da
 
 func (r *orderDetailRepository) InsertOrUpdate(orderDetail datamodels.OrderDetail) (_ datamodels.OrderDetail, err error) {
 	var oldOrderDetail datamodels.OrderDetail
-	if err := r.source.First(&oldOrderDetail).Error; err != nil {
+	if err := r.source.First(&oldOrderDetail, orderDetail.ID).Error; err != nil {
 		r.source.Create(&orderDetail)
 	} else {
 		r.source.Model(&oldOrderDetail).Update(&orderDetail)
