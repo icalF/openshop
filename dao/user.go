@@ -5,22 +5,20 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Query map[string]string
-
 type UserDAO interface {
-	Select(query Query) (user models.User, found bool)
+	Select(query Query) (model models.User, found bool)
 	SelectMany(query Query, limit int) (results []models.User)
 
-	InsertOrUpdate(user models.User) (models.User, error)
+	InsertOrUpdate(model models.User) (models.User, error)
 	Delete(query Query) (deleted bool)
-}
-
-func NewUserDAO(connection *gorm.DB) UserDAO {
-	return &userRepository{source: connection}
 }
 
 type userRepository struct {
 	source *gorm.DB
+}
+
+func NewUserDAO(connection *gorm.DB) UserDAO {
+	return &userRepository{source: connection}
 }
 
 func (r *userRepository) Select(query Query) (models.User, bool) {

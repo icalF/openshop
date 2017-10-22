@@ -21,14 +21,25 @@ func main() {
 	}
 
 	userDAO := dao.NewUserDAO(dbConn)
+	couponDAO := dao.NewCouponDAO(dbConn)
+
 	userService := services.NewUserService(userDAO)
+	couponService := services.NewCouponService(couponDAO)
 
 	app.Controller("/user", new(controllers.UserController),
 		userService,
 		// Add the basic authentication(admin:password) middleware
 		// for the /movies based requests.
 		// middleware.BasicAuth
-		)
+	)
+
+	app.Controller("/coupon", new(controllers.CouponController),
+		couponService,
+		// Add the basic authentication(admin:password) middleware
+		// for the /movies based requests.
+		// middleware.BasicAuth
+	)
+
 	app.Run(
 		iris.Addr("localhost:8080"),
 		iris.WithoutVersionChecker,
