@@ -1,18 +1,14 @@
 package controllers
 
 import (
-	"errors"
-	_ "github.com/gpmgo/gopm/modules/log"
-
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/mvc"
 
 	"github.com/icalF/openshop/models"
 	"github.com/icalF/openshop/services"
 )
 
 type UserController struct {
-	mvc.C
+	BaseController
 	Service services.UserService
 }
 
@@ -22,38 +18,63 @@ func (c *UserController) Get() (results []models.User) {
 }
 
 // GET /user/{id: int}
-func (c *UserController) GetBy(id int64) (movie models.User, found bool) {
-	return c.Service.GetByID(id)
+func (c *UserController) GetBy(id int64) (interface{}, int) {
+	user, found  := c.Service.GetByID(id);
+	if !found {
+		return nil, iris.StatusNotFound
+	}
+
+	return user, iris.StatusOK
 }
 
 // POST /user/
-func (c *UserController) Post() (models.User, error) {
+func (c *UserController) Post() (interface{}, int) {
 	user := models.User{}
 	err := c.Ctx.ReadJSON(&user)
 	if err != nil {
-		return models.User{}, errors.New("field(s) parsing error")
+		return "Field(s) parsing error", iris.StatusBadRequest
 	}
 
-	return c.Service.InsertOrUpdate(user)
+	err = c.ValidateInput(user)
+	if err != nil {
+		return err, iris.StatusBadRequest
+	}
+
+	res, err := c.Service.InsertOrUpdate(user)
+	if err != nil {
+		return err, iris.StatusInternalServerError
+	}
+
+	return res, iris.StatusOK
 }
 
 // PUT /user/{id: int}
-func (c *UserController) PutBy(id int64) (models.User, error) {
+func (c *UserController) PutBy(id int64) (interface{}, int) {
 	user := models.User{}
 	err := c.Ctx.ReadJSON(&user)
 	if err != nil {
-		return models.User{}, errors.New("field(s) parsing error")
+		return "Field(s) parsing error", iris.StatusBadRequest
+	}
+
+	err = c.ValidateInput(user)
+	if err != nil {
+		return err, iris.StatusBadRequest
 	}
 
 	user.ID = id
-	return c.Service.InsertOrUpdate(user)
+	res, err := c.Service.InsertOrUpdate(user)
+	if err != nil {
+		return err, iris.StatusInternalServerError
+	}
+
+	return res, iris.StatusOK
 }
 
 // DELETE /user/{id: int}
-func (c *UserController) DeleteBy(id int64) interface{} {
+func (c *UserController) DeleteBy(id int64) (interface{}, int) {
 	wasDel := c.Service.DeleteByID(id)
 	if wasDel {
-		return iris.Map{"deleted": id}
+		return iris.Map{"deleted": id}, iris.StatusAccepted
 	}
-	return iris.StatusBadRequest
+	return nil, iris.StatusInternalServerError
 }
