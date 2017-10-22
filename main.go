@@ -22,9 +22,11 @@ func main() {
 
 	userDAO := dao.NewUserDAO(dbConn)
 	couponDAO := dao.NewCouponDAO(dbConn)
+	productDAO := dao.NewProductDAO(dbConn)
 
 	userService := services.NewUserService(userDAO)
 	couponService := services.NewCouponService(couponDAO)
+	productService := services.NewProductService(productDAO)
 
 	app.Controller("/user", new(controllers.UserController),
 		userService,
@@ -35,6 +37,13 @@ func main() {
 
 	app.Controller("/coupon", new(controllers.CouponController),
 		couponService,
+		// Add the basic authentication(admin:password) middleware
+		// for the /movies based requests.
+		// middleware.BasicAuth
+	)
+
+	app.Controller("/product", new(controllers.ProductController),
+		productService,
 		// Add the basic authentication(admin:password) middleware
 		// for the /movies based requests.
 		// middleware.BasicAuth

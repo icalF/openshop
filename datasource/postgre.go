@@ -11,6 +11,6 @@ func NewMysqlConnection() (*gorm.DB, error) {
 		return &gorm.DB{}, err
 	}
 
-	dbConn.AutoMigrate(&models.User{}, &models.Coupon{})
+	dbConn.AutoMigrate(&models.User{}, &models.Coupon{}, &models.Product{})
 	return dbConn, err
 }
