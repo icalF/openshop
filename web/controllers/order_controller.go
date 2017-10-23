@@ -6,40 +6,49 @@ import (
 	"os"
 	"io"
 
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/sessions"
+
 	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
-	"github.com/kataras/iris"
 )
 
 type OrderController struct {
 	BaseController
+	sess               *sessions.Sessions
 	CouponService      services.CouponService
 	OrderService       services.OrderService
 	OrderDetailService services.OrderDetailService
 	PaymentService     services.PaymentService
+	UserService        services.UserService
 }
 
-//// GET /order
-//func (c *OrderController) Get() (results []datamodels.Order) {
-//	return c.OrderService.GetAll()
-//}
+func NewOrderController() *OrderController {
+	return &OrderController{
+		sess: sessions.New(sessions.Config{Cookie: "SHOPSESS_ID"}),
+	}
+}
 
-// GET /order/{id: int}
-func (c *OrderController) GetBy(id int64) (interface{}, int) {
-	order, found := c.OrderService.GetByID(id)
-	if !found {
-		return nil, iris.StatusNotFound
+// GET /order
+func (c *OrderController) Get() (interface{}, int) {
+	sess := c.sess.Start(c.Ctx)
+
+	user, err := c.UserService.GetByToken(sess.ID())
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}
 
-	return order, iris.StatusOK
+	return c.OrderService.GetByUserID(user.ID), iris.StatusOK
 }
 
 // POST /order
 func (c *OrderController) Post() (interface{}, int) {
+	sess := c.sess.Start(c.Ctx)
+
 	order := datamodels.Order{}
 	err := c.Ctx.ReadJSON(&order)
 	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
+		return iris.Map{"message": "field(s) parsing error"}, iris.StatusBadRequest
 	}
 
 	err = c.ValidateInput(order)
@@ -47,7 +56,12 @@ func (c *OrderController) Post() (interface{}, int) {
 		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
 	}
 
-	res, err := c.OrderService.InsertOrUpdate(datamodels.NewOrder(order.UserID))
+	user, err := c.UserService.GetByToken(sess.ID())
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
+	}
+
+	res, err := c.OrderService.InsertOrUpdate(datamodels.NewOrder(user.ID))
 	if err != nil {
 		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}
@@ -194,7 +208,7 @@ func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
 	orderDetail := datamodels.NewOrderDetail(orderId)
 	err := c.Ctx.ReadJSON(&orderDetail)
 	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
+		return iris.Map{"message": "field(s) parsing error"}, iris.StatusBadRequest
 	}
 
 	err = c.ValidateInput(orderDetail)
@@ -218,7 +232,7 @@ func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
 func (c *OrderController) GetByDetailBy(orderId int64, id int64) (interface{}, int) {
 	orderDetail, found := c.OrderDetailService.GetByID(id)
 	if !found {
-		return nil, iris.StatusNotFound
+		return iris.Map{"message": "order detail ID cannot be found"}, iris.StatusNotFound
 	}
 
 	return orderDetail, iris.StatusOK
@@ -229,7 +243,7 @@ func (c *OrderController) PutByDetailBy(orderId int64, id int64) (interface{}, i
 	orderDetail := datamodels.NewOrderDetail(orderId)
 	err := c.Ctx.ReadJSON(&orderDetail)
 	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
+		return iris.Map{"message": "field(s) parsing error"}, iris.StatusBadRequest
 	}
 
 	err = c.ValidateInput(orderDetail)

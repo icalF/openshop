@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/kataras/iris"
+	"github.com/kataras/iris/sessions"
 
 	"github.com/icalF/openshop/services"
 	"github.com/icalF/openshop/models/datamodels"
@@ -9,72 +10,53 @@ import (
 
 type UserController struct {
 	BaseController
-	Service services.UserService
+	sess        *sessions.Sessions
+	UserService services.UserService
 }
 
-// GET /user/
-func (c *UserController) Get() (results []datamodels.User) {
-	return c.Service.GetAll()
+func NewUserController() *UserController {
+	return &UserController{
+		sess: sessions.New(sessions.Config{Cookie: "SHOPSESS_ID"}),
+	}
 }
 
-// GET /user/{id: int}
-func (c *UserController) GetBy(id int64) (interface{}, int) {
-	user, found  := c.Service.GetByID(id);
-	if !found {
-		return nil, iris.StatusNotFound
+// GET /user
+func (c *UserController) Get() (interface{}, int) {
+	sess := c.sess.Start(c.Ctx)
+
+	user, err := c.UserService.GetByToken(sess.ID())
+	if err != nil {
+		return iris.Map{"message": "unexpected error"}, iris.StatusInternalServerError
 	}
 
 	return user, iris.StatusOK
 }
 
-// POST /user/
+// PUT /user
 func (c *UserController) Post() (interface{}, int) {
+	sess := c.sess.Start(c.Ctx)
+
 	user := datamodels.User{}
 	err := c.Ctx.ReadJSON(&user)
 	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
+		return iris.Map{"message": "field(s) parsing error"}, iris.StatusBadRequest
 	}
 
 	err = c.ValidateInput(user)
 	if err != nil {
-		return err, iris.StatusBadRequest
+		return iris.Map{"message": err.Error}, iris.StatusBadRequest
 	}
 
-	res, err := c.Service.InsertOrUpdate(user)
+	oldUser, err := c.UserService.GetByToken(sess.ID())
 	if err != nil {
-		return err, iris.StatusInternalServerError
+		return iris.Map{"message": "unexpected error"}, iris.StatusInternalServerError
+	}
+
+	user.ID = oldUser.ID
+	res, err := c.UserService.InsertOrUpdate(user)
+	if err != nil {
+		return iris.Map{"message": err.Error}, iris.StatusInternalServerError
 	}
 
 	return res, iris.StatusOK
-}
-
-// PUT /user/{id: int}
-func (c *UserController) PutBy(id int64) (interface{}, int) {
-	user := datamodels.User{}
-	err := c.Ctx.ReadJSON(&user)
-	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
-	}
-
-	err = c.ValidateInput(user)
-	if err != nil {
-		return err, iris.StatusBadRequest
-	}
-
-	user.ID = id
-	res, err := c.Service.InsertOrUpdate(user)
-	if err != nil {
-		return err, iris.StatusInternalServerError
-	}
-
-	return res, iris.StatusOK
-}
-
-// DELETE /user/{id: int}
-func (c *UserController) DeleteBy(id int64) (interface{}, int) {
-	wasDel := c.Service.DeleteByID(id)
-	if wasDel {
-		return iris.Map{"deleted": id}, iris.StatusAccepted
-	}
-	return nil, iris.StatusInternalServerError
 }

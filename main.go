@@ -37,8 +37,9 @@ func main() {
 	couponService := services.NewCouponService(couponDAO)
 	orderService := services.NewOrderService(orderDAO, paymentService, orderDetailService, productService, couponService)
 
+	//middleware.BasicAuth
 	root := app.Party("/")
-	root.Controller("/user", new(controllers.UserController),
+	root.Controller("/user", controllers.NewUserController(),
 		userService,
 	)
 	root.Controller("/coupon", new(controllers.CouponController),
@@ -47,11 +48,12 @@ func main() {
 	root.Controller("/product", new(controllers.ProductController),
 		productService,
 	)
-	root.Controller("/order", new(controllers.OrderController),
+	root.Controller("/order", controllers.NewOrderController(),
 		couponService,
 		orderService,
 		orderDetailService,
 		paymentService,
+		userService,
 	)
 	root.Controller("/shipment", new(controllers.ShipmentController),
 		shipmentService,
@@ -71,8 +73,8 @@ func main() {
 	app.Run(
 		iris.Addr("localhost:8080"),
 		iris.WithoutVersionChecker,
-		//iris.WithoutServerError(iris.ErrServerClosed),
-		iris.WithOptimizations, // enables faster json serialization and more
+		iris.WithoutServerError(iris.ErrServerClosed),
+		iris.WithOptimizations,
 	)
 
 	defer dbConn.Close()

@@ -11,6 +11,7 @@ type OrderService interface {
 	GetAll() []datamodels.Order
 	GetAllSubmitted() []datamodels.Order
 	GetByID(id int64) (datamodels.Order, bool)
+	GetByUserID(userId int64) []datamodels.Order
 	InsertOrUpdate(order datamodels.Order) (datamodels.Order, error)
 	InsertCoupon(id int64, code string) (bool, error)
 	Checkout(id int64) (datamodels.Payment, bool, error)
@@ -55,6 +56,12 @@ func (s *orderService) GetByID(id int64) (datamodels.Order, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
+}
+
+func (s *orderService) GetByUserID(userId int64) []datamodels.Order {
+	return s.dao.SelectMany(map[string]string{
+		"user_id": string(userId),
+	}, 0)
 }
 
 func (s *orderService) InsertOrUpdate(order datamodels.Order) (datamodels.Order, error) {

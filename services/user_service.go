@@ -8,6 +8,7 @@ import (
 type UserService interface {
 	GetAll() []datamodels.User
 	GetByID(id int64) (datamodels.User, bool)
+	GetByToken(token string) (datamodels.User, error)
 	InsertOrUpdate(user datamodels.User) (datamodels.User, error)
 	DeleteByID(id int64) bool
 }
@@ -30,6 +31,22 @@ func (s *userService) GetByID(id int64) (datamodels.User, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
 	})
+}
+
+func (s *userService) GetByToken(token string) (datamodels.User, error) {
+	user, found := s.dao.Select(map[string]string{
+		"token": token,
+	})
+
+	if !found {
+		newUser, err := s.InsertOrUpdate(datamodels.NewUser(token))
+		if err != nil {
+			return datamodels.User{}, err
+		}
+		user = newUser
+	}
+
+	return user, nil
 }
 
 func (s *userService) InsertOrUpdate(user datamodels.User) (datamodels.User, error) {
