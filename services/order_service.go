@@ -16,7 +16,7 @@ type OrderService interface {
 	InsertCoupon(id int64, code string) (bool, error)
 	Checkout(id int64) (datamodels.Payment, bool, error)
 	DeleteByID(id int64) bool
-	GetTotalAmount(id int64) int
+	GetTotalAmount(order datamodels.Order) int
 }
 
 func NewOrderService(dao dao.OrderDAO,
@@ -108,12 +108,12 @@ func (s *orderService) Checkout(id int64) (datamodels.Payment, bool, error) {
 		return datamodels.Payment{}, true, errors.New("product(s) cannot be purchased")
 	}
 
-	order.Status = datamodels.SUBMITTED
-	payment, err := s.paymentService.InsertOrUpdate(datamodels.NewPayment(id, s.GetTotalAmount(id)))
+	payment, err := s.paymentService.InsertOrUpdate(datamodels.NewPayment(id, s.GetTotalAmount(order)))
 	if err != nil {
 		return datamodels.Payment{}, true, err
 	}
 
+	order.Status = datamodels.SUBMITTED
 	if _, err = s.dao.InsertOrUpdate(order); err != nil {
 		return datamodels.Payment{}, true, err
 	}
@@ -137,9 +137,8 @@ func (s *orderService) DeleteByID(id int64) bool {
 	})
 }
 
-func (s *orderService) GetTotalAmount(id int64) int {
-	orderDetails := s.orderDetailService.GetByOrderID(id)
-
+func (s *orderService) GetTotalAmount(order datamodels.Order) int {
+	orderDetails := s.orderDetailService.GetByOrderID(order.ID)
 	productIds := make([]int64, len(orderDetails))
 	for i, orderDetail := range orderDetails {
 		productIds[i] = orderDetail.ProductID
@@ -148,9 +147,18 @@ func (s *orderService) GetTotalAmount(id int64) int {
 	products := s.productService.GetByIDs(productIds)
 	productMap := s.productService.CreateProductMap(products)
 
-	totalAmount := 0
+	grossAmount := 0
 	for _, orderDetail := range orderDetails {
-		totalAmount += productMap[orderDetail.ProductID].Price * orderDetail.Qty
+		grossAmount += productMap[orderDetail.ProductID].Price * orderDetail.Qty
 	}
-	return totalAmount
+
+	coupon, found := s.couponService.GetByPromoCode(order.VoucherCode)
+	if found {
+		if coupon.Percent > 0 {
+			grossAmount = int(grossAmount * (100 - coupon.Percent) / 100.0)
+		} else {
+			grossAmount -= coupon.Nominal
+		}
+	}
+	return grossAmount
 }

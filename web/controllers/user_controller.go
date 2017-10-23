@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/kataras/iris"
 
 	"github.com/icalF/openshop/models/datamodels"
@@ -17,7 +16,6 @@ type UserController struct {
 
 // GET /user
 func (c *UserController) Get() (interface{}, int) {
-	fmt.Print(c.SessionWrapper.GetSession())
 	sess := c.SessionWrapper.GetSession().Start(c.Ctx)
 
 	user, err := c.UserService.GetByToken(sess.ID())
