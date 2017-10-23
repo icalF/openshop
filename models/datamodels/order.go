@@ -5,7 +5,7 @@ import "time"
 const (
 	UNSUBMITTED = "UNSUBMITTED"
 	SUBMITTED   = "SUBMITTED"
-	FINISHED    = "FINISHED"
+	CANCELLED   = "CANCELLED"
 )
 
 type Order struct {

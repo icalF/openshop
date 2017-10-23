@@ -9,6 +9,7 @@ import (
 
 type OrderService interface {
 	GetAll() []datamodels.Order
+	GetAllSubmitted() []datamodels.Order
 	GetByID(id int64) (datamodels.Order, bool)
 	InsertOrUpdate(order datamodels.Order) (datamodels.Order, error)
 	InsertCoupon(id int64, code string) (bool, error)
@@ -42,6 +43,12 @@ type orderService struct {
 
 func (s *orderService) GetAll() []datamodels.Order {
 	return s.dao.SelectMany(map[string]string{}, 0)
+}
+
+func (s *orderService) GetAllSubmitted() []datamodels.Order {
+	return s.dao.SelectMany(map[string]string{
+		"status": datamodels.SUBMITTED,
+	}, 0)
 }
 
 func (s *orderService) GetByID(id int64) (datamodels.Order, bool) {

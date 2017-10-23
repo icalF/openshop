@@ -5,7 +5,7 @@ import (
 	"github.com/icalF/openshop/models/datamodels"
 )
 
-func NewMysqlConnection() (*gorm.DB, error) {
+func NewPostgreConnection() (*gorm.DB, error) {
 	dbConn, err := gorm.Open("postgres", "host=localhost user=postgres dbname=openshop sslmode=disable password=pgsql")
 	if err != nil {
 		return &gorm.DB{}, err

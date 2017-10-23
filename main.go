@@ -10,13 +10,13 @@ import (
 	"github.com/icalF/openshop/datasource"
 	"github.com/icalF/openshop/services"
 	"github.com/icalF/openshop/dao"
-	"github.com/kataras/iris/_examples/mvc/overview/web/middleware"
+	"github.com/icalF/openshop/web/middleware"
 )
 
 func main() {
 	app := iris.New()
 
-	dbConn, err := datasource.NewMysqlConnection()
+	dbConn, err := datasource.NewPostgreConnection()
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
@@ -37,30 +37,30 @@ func main() {
 	couponService := services.NewCouponService(couponDAO)
 	orderService := services.NewOrderService(orderDAO, paymentService, orderDetailService, productService, couponService)
 
-	app.Party("/", middleware.BasicAuth)
-
-	app.Controller("/user", new(controllers.UserController),
+	root := app.Party("/")
+	root.Controller("/user", new(controllers.UserController),
 		userService,
 	)
-
-	app.Controller("/coupon", new(controllers.CouponController),
+	root.Controller("/coupon", new(controllers.CouponController),
 		couponService,
 	)
-
-	app.Controller("/product", new(controllers.ProductController),
+	root.Controller("/product", new(controllers.ProductController),
 		productService,
 	)
-
-	app.Controller("/order", new(controllers.OrderController),
+	root.Controller("/order", new(controllers.OrderController),
 		couponService,
 		orderService,
 		orderDetailService,
 		paymentService,
 		shipmentService,
 	)
-
-	app.Controller("/shipment", new(controllers.ShipmentController),
+	root.Controller("/shipment", new(controllers.ShipmentController),
 		shipmentService,
+	)
+
+	root.Controller("/admin", new(controllers.AdminController),
+		orderService,
+		middleware.BasicAuth,
 	)
 
 	app.Run(

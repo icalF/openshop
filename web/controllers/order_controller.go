@@ -19,10 +19,10 @@ type OrderController struct {
 	PaymentService     services.PaymentService
 }
 
-// GET /order
-func (c *OrderController) Get() (results []datamodels.Order) {
-	return c.OrderService.GetAll()
-}
+//// GET /order
+//func (c *OrderController) Get() (results []datamodels.Order) {
+//	return c.OrderService.GetAll()
+//}
 
 // GET /order/{id: int}
 func (c *OrderController) GetBy(id int64) (interface{}, int) {
