@@ -8,6 +8,8 @@ import (
 type ShipmentService interface {
 	GetAll() []datamodels.Shipment
 	GetByID(id int64) (datamodels.Shipment, bool)
+	GetByOrderID(orderId int64) (datamodels.Shipment, bool)
+	GetByShippingCode(code string) (datamodels.Shipment, bool)
 	InsertOrUpdate(shipment datamodels.Shipment) (datamodels.Shipment, error)
 	DeleteByID(id int64) bool
 }
@@ -29,6 +31,18 @@ func (s *shipmentService) GetAll() []datamodels.Shipment {
 func (s *shipmentService) GetByID(id int64) (datamodels.Shipment, bool) {
 	return s.dao.Select(map[string]string{
 		"id": string(id),
+	})
+}
+
+func (s *shipmentService) GetByOrderID(orderId int64) (datamodels.Shipment, bool) {
+	return s.dao.Select(map[string]string{
+		"order_id": string(orderId),
+	})
+}
+
+func (s *shipmentService) GetByShippingCode(code string) (datamodels.Shipment, bool) {
+	return s.dao.Select(map[string]string{
+		"shipping_code": code,
 	})
 }
 

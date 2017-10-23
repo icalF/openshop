@@ -1,10 +1,14 @@
 package controllers
 
 import (
-	"github.com/kataras/iris"
+	"encoding/base64"
+	"encoding/binary"
+	"os"
+	"io"
 
 	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
+	"github.com/kataras/iris"
 )
 
 type OrderController struct {
@@ -134,6 +138,52 @@ func (c *OrderController) GetByPayment(orderId int64) (interface{}, int) {
 	return payment, iris.StatusOK
 }
 
+// POST /order/{id: int}/payment/upload
+func (c *OrderController) PostByPaymentUpload(orderId int64) (interface{}, int) {
+	c.Ctx.SetMaxRequestBodySize(1 << 16)
+
+	// Get the file from the request
+	file, _, err := c.Ctx.FormFile("file")
+	if err != nil {
+		return iris.Map{
+			"message": "error while uploading",
+			"info":    err.Error(),
+		}, iris.StatusInternalServerError
+	}
+
+	defer file.Close()
+	bs := make([]byte, 8)
+	binary.LittleEndian.PutUint64(bs, uint64(orderId))
+	filename := base64.StdEncoding.EncodeToString(bs)
+
+	out, err := os.OpenFile("./uploads/"+filename,
+		os.O_WRONLY|os.O_CREATE, 0666)
+
+	if err != nil {
+		return iris.Map{
+			"message": "error while saving",
+			"info":    err.Error(),
+		}, iris.StatusInternalServerError
+	}
+	defer out.Close()
+
+	found, err := c.PaymentService.UpdatePaymentProof(orderId, filename);
+	if err != nil {
+		statusCode := iris.StatusInternalServerError
+		if !found {
+			statusCode = iris.StatusNotFound
+		}
+
+		return iris.Map{
+			"message": "error while updating payment data",
+			"info":    err.Error(),
+		}, statusCode
+	}
+
+	io.Copy(out, file)
+	return iris.Map{"message": "uploading success"}, iris.StatusOK
+}
+
 // GET /order/{id: int}/detail
 func (c *OrderController) GetByDetail(orderId int64) (results []datamodels.OrderDetail) {
 	return c.OrderDetailService.GetAll()
@@ -208,5 +258,3 @@ func (c *OrderController) DeleteByDetailBy(orderId int64, id int64) (interface{}
 	}
 	return nil, iris.StatusInternalServerError
 }
-
-// GET /order/{id: int}/shipment

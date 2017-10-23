@@ -24,11 +24,13 @@ func main() {
 	userDAO := dao.NewUserDAO(dbConn)
 	couponDAO := dao.NewCouponDAO(dbConn)
 	productDAO := dao.NewProductDAO(dbConn)
+	shipmentDAO := dao.NewShipmentDAO(dbConn)
 	paymentDAO := dao.NewPaymentDAO(dbConn)
 	orderDetailDAO := dao.NewOrderDetailDAO(dbConn)
 	orderDAO := dao.NewOrderDAO(dbConn)
 
 	userService := services.NewUserService(userDAO)
+	shipmentService := services.NewShipmentService(shipmentDAO)
 	productService := services.NewProductService(productDAO)
 	paymentService := services.NewPaymentService(paymentDAO)
 	orderDetailService := services.NewOrderDetailService(orderDetailDAO, productService)
@@ -54,6 +56,11 @@ func main() {
 		orderService,
 		orderDetailService,
 		paymentService,
+		shipmentService,
+	)
+
+	app.Controller("/shipment", new(controllers.ShipmentController),
+		shipmentService,
 	)
 
 	app.Run(
