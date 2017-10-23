@@ -12,6 +12,7 @@ type AdminController struct {
 	OrderService       services.OrderService
 	OrderDetailService services.OrderDetailService
 	PaymentService     services.PaymentService
+	ShipmentService    services.ShipmentService
 	UserService        services.UserService
 }
 
@@ -86,7 +87,7 @@ func (c *AdminController) GetOrderByPayment(orderId int64) (interface{}, int) {
 	return payment, iris.StatusOK
 }
 
-// POST /admin/order/{id: int}/payment/proof
+// GET /admin/order/{id: int}/payment/proof
 func (c *AdminController) PostOrderByPaymentProof(orderId int64) (interface{}, int) {
 	payment, found := c.PaymentService.GetByOrderID(orderId)
 	if !found {
@@ -108,6 +109,32 @@ func (c *AdminController) PostOrderByPaymentVerify(orderId int64) (interface{}, 
 
 	payment.Status = datamodels.VERIFIED
 	res, err := c.PaymentService.InsertOrUpdate(payment)
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
+	}
+
+	return res, iris.StatusOK
+}
+
+// GET /admin/order/{id: int}/shipment
+func (c *AdminController) GetOrderByShipment(orderId int64) (interface{}, int) {
+	shipment, found := c.ShipmentService.GetByOrderID(orderId)
+	if !found {
+		return iris.Map{"message": "order ID not found"}, iris.StatusNotFound
+	}
+
+	return shipment, iris.StatusOK
+}
+
+// POST /admin/order/{id: int}/shipment/send
+func (c *AdminController) PostOrderByShipmentSend(orderId int64) (interface{}, int) {
+	var shippingCode string
+	if err := c.Ctx.ReadJSON(&shippingCode); err != nil || len(shippingCode) != 8 {
+		return nil, iris.StatusBadRequest
+	}
+
+	shipment := datamodels.NewShipment(orderId, shippingCode)
+	res, err := c.ShipmentService.InsertOrUpdate(shipment)
 	if err != nil {
 		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}

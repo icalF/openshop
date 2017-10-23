@@ -3,8 +3,8 @@ package datamodels
 import "time"
 
 const (
-	DELIVERED             = "DELIVERED"
-	SHIPPED               = "SHIPPED"
+	DELIVERED = "DELIVERED"
+	SHIPPED   = "SHIPPED"
 )
 
 type Shipment struct {
@@ -16,9 +16,10 @@ type Shipment struct {
 	UpdatedAt    time.Time
 }
 
-func NewShipment(orderID int64) Shipment {
+func NewShipment(orderID int64, code string) Shipment {
 	return Shipment{
-		OrderID: orderID,
-		Status:  SHIPPED,
+		OrderID:      orderID,
+		ShippingCode: code,
+		Status:       SHIPPED,
 	}
 }

@@ -84,7 +84,7 @@ func (c *OrderController) GetByCoupon(orderId int64) (interface{}, int) {
 // POST /order/{id: int}/coupon
 func (c *OrderController) PostByCoupon(orderId int64) (interface{}, int) {
 	var code string
-	if err := c.Ctx.ReadJSON(&code); err != nil || len(code) < 1 {
+	if err := c.Ctx.ReadJSON(&code); err != nil || len(code) != 6 {
 		return nil, iris.StatusBadRequest
 	}
 
