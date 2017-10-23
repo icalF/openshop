@@ -14,7 +14,7 @@ type ProductController struct {
 
 // GET /product/
 func (c *ProductController) Get() (results []datamodels.Product) {
-	return c.Service.GetAllPurchaseable()
+	return c.Service.GetAllPurchasable()
 }
 
 // GET /product/{id: int}

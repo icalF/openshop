@@ -9,13 +9,13 @@ import (
 
 type OrderController struct {
 	BaseController
-	CouponService services.CouponService
-	OrderService services.OrderService
+	CouponService      services.CouponService
+	OrderService       services.OrderService
 	OrderDetailService services.OrderDetailService
-	PaymentService services.PaymentService
+	PaymentService     services.PaymentService
 }
 
-// GET /order/
+// GET /order
 func (c *OrderController) Get() (results []datamodels.Order) {
 	return c.OrderService.GetAll()
 }
@@ -30,7 +30,7 @@ func (c *OrderController) GetBy(id int64) (interface{}, int) {
 	return order, iris.StatusOK
 }
 
-// POST /order/
+// POST /order
 func (c *OrderController) Post() (interface{}, int) {
 	order := datamodels.Order{}
 	err := c.Ctx.ReadJSON(&order)
@@ -40,12 +40,12 @@ func (c *OrderController) Post() (interface{}, int) {
 
 	err = c.ValidateInput(order)
 	if err != nil {
-		return err, iris.StatusBadRequest
+		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
 	}
 
 	res, err := c.OrderService.InsertOrUpdate(datamodels.NewOrder(order.UserID))
 	if err != nil {
-		return err, iris.StatusInternalServerError
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}
 
 	return res, iris.StatusOK
@@ -55,42 +55,23 @@ func (c *OrderController) Post() (interface{}, int) {
 func (c *OrderController) DeleteBy(id int64) (interface{}, int) {
 	wasDel := c.OrderService.DeleteByID(id)
 	if wasDel {
-		return iris.Map{"deleted": id}, iris.StatusOK
+		return iris.Map{"order_id": id}, iris.StatusOK
 	}
 	return nil, iris.StatusInternalServerError
 }
 
-// GET /order/{id: int}/detail/
-func (c *OrderController) GetByDetail(orderId int64) (results []datamodels.OrderDetail) {
-	return c.OrderDetailService.GetAll()
-}
 
-// POST /order/{id: int}/detail/
-func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
-	orderDetail := datamodels.NewOrderDetail(orderId)
-	err := c.Ctx.ReadJSON(&orderDetail)
-	if err != nil {
-		return "Field(s) parsing error", iris.StatusBadRequest
-	}
-
-	err = c.ValidateInput(orderDetail)
-	if err != nil {
-		return err, iris.StatusBadRequest
-	}
-
-	res, err := c.OrderDetailService.InsertOrUpdate(orderDetail)
-	if err != nil {
-		return err, iris.StatusInternalServerError
-	}
-
-	return res, iris.StatusOK
-}
 
 // GET /order/{id: int}/coupon
 func (c *OrderController) GetByCoupon(orderId int64) (interface{}, int) {
-	coupon, found := c.CouponService.GetByOrderID(orderId)
+	order, found := c.OrderService.GetByID(orderId)
 	if !found {
-		return nil, iris.StatusNotFound
+		return iris.Map{"message": "order ID not found"}, iris.StatusNotFound
+	}
+
+	coupon, found := c.CouponService.GetByPromoCode(order.VoucherCode)
+	if !found {
+		return iris.Map{"message": "promo code not found"}, iris.StatusNotFound
 	}
 
 	return coupon, iris.StatusOK
@@ -105,13 +86,13 @@ func (c *OrderController) PostByCoupon(orderId int64) (interface{}, int) {
 
 	found, err := c.OrderService.InsertCoupon(orderId, code)
 	if !found {
-		return iris.Map{"message": "coupon with code not found"}, iris.StatusNotFound
+		return iris.Map{"message": err.Error()}, iris.StatusNotFound
 	}
 	if err != nil {
-		return err, iris.StatusInternalServerError
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}
 
-	return iris.Map{"couponApplied": code}, iris.StatusOK
+	return iris.Map{"voucher_code": code}, iris.StatusOK
 }
 
 // DELETE /order/{id: int}/coupon
@@ -127,7 +108,60 @@ func (c *OrderController) DeleteByCoupon(orderId int64) (interface{}, int) {
 		return nil, iris.StatusInternalServerError
 	}
 
-	return iris.Map{"deleted": oldCode}, iris.StatusOK
+	return iris.Map{"voucher_code": oldCode}, iris.StatusOK
+}
+
+// POST /order/{id: int}/checkout
+func (c *OrderController) PostByCheckout(orderId int64) (interface{}, int) {
+	payment, valid, err := c.OrderService.Checkout(orderId)
+	if !valid {
+		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
+	}
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
+	}
+
+	return payment, iris.StatusOK
+}
+
+// GET /order/{id: int}/payment
+func (c *OrderController) GetByPayment(orderId int64) (interface{}, int) {
+	payment, found := c.PaymentService.GetByOrderID(orderId)
+	if !found {
+		return iris.Map{"message": "orderId not found"}, iris.StatusNotFound
+	}
+
+	return payment, iris.StatusOK
+}
+
+// GET /order/{id: int}/detail
+func (c *OrderController) GetByDetail(orderId int64) (results []datamodels.OrderDetail) {
+	return c.OrderDetailService.GetAll()
+}
+
+// POST /order/{id: int}/detail
+func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
+	orderDetail := datamodels.NewOrderDetail(orderId)
+	err := c.Ctx.ReadJSON(&orderDetail)
+	if err != nil {
+		return "Field(s) parsing error", iris.StatusBadRequest
+	}
+
+	err = c.ValidateInput(orderDetail)
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
+	}
+
+	if valid := c.OrderDetailService.ValidatePurchase(orderDetail); !valid {
+		return iris.Map{"message": "input not valid"}, iris.StatusBadRequest
+	}
+
+	res, err := c.OrderDetailService.InsertOrUpdate(orderDetail)
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
+	}
+
+	return res, iris.StatusOK
 }
 
 // GET /order/{id: int}/detail/{id: int}
@@ -150,13 +184,17 @@ func (c *OrderController) PutByDetailBy(orderId int64, id int64) (interface{}, i
 
 	err = c.ValidateInput(orderDetail)
 	if err != nil {
-		return err, iris.StatusBadRequest
+		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
+	}
+
+	if valid := c.OrderDetailService.ValidatePurchase(orderDetail); !valid {
+		return iris.Map{"message": "input not valid"}, iris.StatusBadRequest
 	}
 
 	orderDetail.ID = id
 	res, err := c.OrderDetailService.InsertOrUpdate(orderDetail)
 	if err != nil {
-		return err, iris.StatusInternalServerError
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
 	}
 
 	return res, iris.StatusOK
@@ -166,7 +204,9 @@ func (c *OrderController) PutByDetailBy(orderId int64, id int64) (interface{}, i
 func (c *OrderController) DeleteByDetailBy(orderId int64, id int64) (interface{}, int) {
 	wasDel := c.OrderDetailService.DeleteByID(id)
 	if wasDel {
-		return iris.Map{"deleted": id}, iris.StatusOK
+		return iris.Map{"order_detail_id": id}, iris.StatusOK
 	}
 	return nil, iris.StatusInternalServerError
 }
+
+// GET /order/{id: int}/shipment
