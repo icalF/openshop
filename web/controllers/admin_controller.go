@@ -1,14 +1,18 @@
 package controllers
 
 import (
+	"github.com/kataras/iris"
+
 	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
-	"github.com/kataras/iris"
 )
 
 type AdminController struct {
 	BaseController
-	OrderService services.OrderService
+	OrderService       services.OrderService
+	OrderDetailService services.OrderDetailService
+	PaymentService     services.PaymentService
+	UserService        services.UserService
 }
 
 // GET /admin/order
@@ -30,8 +34,7 @@ func (c *AdminController) GetOrderBy(id int64) (interface{}, int) {
 func (c *AdminController) PostOrderByCancel(id int64) (interface{}, int) {
 	order, found := c.OrderService.GetByID(id)
 	if !found {
-		return iris.Map{"message": "order ID not found"},
-			iris.StatusInternalServerError
+		return iris.Map{"message": "order ID not found"}, iris.StatusNotFound
 	}
 
 	order.Status = datamodels.CANCELLED
@@ -44,16 +47,70 @@ func (c *AdminController) PostOrderByCancel(id int64) (interface{}, int) {
 }
 
 // GET /admin/order/{id: int}/detail
-func (c *OrderController) GetOrderByDetail(orderId int64) (results []datamodels.OrderDetail) {
+func (c *AdminController) GetOrderByDetail(orderId int64) (results []datamodels.OrderDetail) {
 	return c.OrderDetailService.GetAll()
 }
 
 // GET /admin/order/{id: int}/detail/{id: int}
-func (c *OrderController) GetOrderByDetailBy(orderId int64, id int64) (interface{}, int) {
+func (c *AdminController) GetOrderByDetailBy(orderId int64, id int64) (interface{}, int) {
 	orderDetail, found := c.OrderDetailService.GetByID(id)
 	if !found {
 		return nil, iris.StatusNotFound
 	}
 
 	return orderDetail, iris.StatusOK
+}
+
+// GET /admin/order/{id: int}/user
+func (c *AdminController) GetOrderByUser(orderId int64) (interface{}, int) {
+	order, found := c.OrderService.GetByID(orderId)
+	if !found {
+		return iris.Map{"message": "order ID not found"}, iris.StatusNotFound
+	}
+
+	payment, found := c.UserService.GetByID(order.UserID)
+	if !found {
+		return iris.Map{"message": "user for order ID not found"}, iris.StatusNotFound
+	}
+
+	return payment, iris.StatusOK
+}
+
+// GET /admin/order/{id: int}/payment
+func (c *AdminController) GetOrderByPayment(orderId int64) (interface{}, int) {
+	payment, found := c.PaymentService.GetByOrderID(orderId)
+	if !found {
+		return iris.Map{"message": "order ID not found"}, iris.StatusNotFound
+	}
+
+	return payment, iris.StatusOK
+}
+
+// POST /admin/order/{id: int}/payment/proof
+func (c *AdminController) PostOrderByPaymentProof(orderId int64) (interface{}, int) {
+	payment, found := c.PaymentService.GetByOrderID(orderId)
+	if !found {
+		return iris.Map{"message": "order ID not found"},
+			iris.StatusInternalServerError
+	}
+
+	path := c.Ctx.Request().URL.Host + "/proof/" + payment.Proof
+	return iris.Map{"path": path}, iris.StatusOK
+}
+
+// POST /admin/order/{id: int}/payment/verify
+func (c *AdminController) PostOrderByPaymentVerify(orderId int64) (interface{}, int) {
+	payment, found := c.PaymentService.GetByOrderID(orderId)
+	if !found {
+		return iris.Map{"message": "order ID not found"},
+			iris.StatusInternalServerError
+	}
+
+	payment.Status = datamodels.VERIFIED
+	res, err := c.PaymentService.InsertOrUpdate(payment)
+	if err != nil {
+		return iris.Map{"message": err.Error()}, iris.StatusInternalServerError
+	}
+
+	return res, iris.StatusOK
 }

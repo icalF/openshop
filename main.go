@@ -52,7 +52,6 @@ func main() {
 		orderService,
 		orderDetailService,
 		paymentService,
-		shipmentService,
 	)
 	root.Controller("/shipment", new(controllers.ShipmentController),
 		shipmentService,
@@ -60,8 +59,14 @@ func main() {
 
 	root.Controller("/admin", new(controllers.AdminController),
 		orderService,
+		orderDetailService,
+		paymentService,
+		shipmentService,
+		userService,
 		middleware.BasicAuth,
 	)
+
+	app.StaticWeb("/proof", "./uploads")
 
 	app.Run(
 		iris.Addr("localhost:8080"),
