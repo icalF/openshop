@@ -3,35 +3,28 @@ package controllers
 import (
 	"encoding/base64"
 	"encoding/binary"
-	"os"
 	"io"
+	"os"
 
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/sessions"
-
 	"github.com/icalF/openshop/models/datamodels"
 	"github.com/icalF/openshop/services"
+	"github.com/icalF/openshop/session"
 )
 
 type OrderController struct {
 	BaseController
-	sess               *sessions.Sessions
 	CouponService      services.CouponService
 	OrderService       services.OrderService
 	OrderDetailService services.OrderDetailService
 	PaymentService     services.PaymentService
 	UserService        services.UserService
-}
-
-func NewOrderController() *OrderController {
-	return &OrderController{
-		sess: sessions.New(sessions.Config{Cookie: "SHOPSESS_ID"}),
-	}
+	SessionWrapper     session.Wrapper
 }
 
 // GET /order
 func (c *OrderController) Get() (interface{}, int) {
-	sess := c.sess.Start(c.Ctx)
+	sess := c.SessionWrapper.GetSession().Start(c.Ctx)
 
 	user, err := c.UserService.GetByToken(sess.ID())
 	if err != nil {
@@ -43,7 +36,7 @@ func (c *OrderController) Get() (interface{}, int) {
 
 // POST /order
 func (c *OrderController) Post() (interface{}, int) {
-	sess := c.sess.Start(c.Ctx)
+	sess := c.SessionWrapper.GetSession().Start(c.Ctx)
 
 	order := datamodels.Order{}
 	err := c.Ctx.ReadJSON(&order)
@@ -77,8 +70,6 @@ func (c *OrderController) DeleteBy(id int64) (interface{}, int) {
 	}
 	return nil, iris.StatusInternalServerError
 }
-
-
 
 // GET /order/{id: int}/coupon
 func (c *OrderController) GetByCoupon(orderId int64) (interface{}, int) {
@@ -181,7 +172,7 @@ func (c *OrderController) PostByPaymentUpload(orderId int64) (interface{}, int) 
 	}
 	defer out.Close()
 
-	found, err := c.PaymentService.UpdatePaymentProof(orderId, filename);
+	found, err := c.PaymentService.UpdatePaymentProof(orderId, filename)
 	if err != nil {
 		statusCode := iris.StatusInternalServerError
 		if !found {

@@ -5,3 +5,5 @@ import:
 - package: github.com/jinzhu/gorm
   version: ^1.0.0
 - package: github.com/lib/pq
+- package: gopkg.in/go-playground/validator.v8
+  version: ^9.8.0

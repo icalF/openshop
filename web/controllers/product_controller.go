@@ -19,7 +19,7 @@ func (c *ProductController) Get() (results []datamodels.Product) {
 
 // GET /product/{id: int}
 func (c *ProductController) GetBy(id int64) (interface{}, int) {
-	product, found  := c.Service.GetByID(id);
+	product, found := c.Service.GetByID(id)
 	if !found {
 		return nil, iris.StatusNotFound
 	}

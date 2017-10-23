@@ -2,15 +2,17 @@ package main
 
 import (
 	"log"
+	"os"
 
-	"github.com/kataras/iris"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/web/controllers"
+	"github.com/icalF/openshop/dao"
 	"github.com/icalF/openshop/datasource"
 	"github.com/icalF/openshop/services"
-	"github.com/icalF/openshop/dao"
+	"github.com/icalF/openshop/web/controllers"
 	"github.com/icalF/openshop/web/middleware"
+	"github.com/icalF/openshop/session"
 )
 
 func main() {
@@ -20,6 +22,8 @@ func main() {
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
+	sessionWrapper := session.NewSessionWrapper()
 
 	userDAO := dao.NewUserDAO(dbConn)
 	couponDAO := dao.NewCouponDAO(dbConn)
@@ -39,8 +43,9 @@ func main() {
 
 	//middleware.BasicAuth
 	root := app.Party("/")
-	root.Controller("/user", controllers.NewUserController(),
+	root.Controller("/user", new(controllers.UserController),
 		userService,
+		sessionWrapper,
 	)
 	root.Controller("/coupon", new(controllers.CouponController),
 		couponService,
@@ -48,12 +53,13 @@ func main() {
 	root.Controller("/product", new(controllers.ProductController),
 		productService,
 	)
-	root.Controller("/order", controllers.NewOrderController(),
+	root.Controller("/order", new(controllers.OrderController),
 		couponService,
 		orderService,
 		orderDetailService,
 		paymentService,
 		userService,
+		sessionWrapper,
 	)
 	root.Controller("/shipment", new(controllers.ShipmentController),
 		shipmentService,
@@ -71,7 +77,7 @@ func main() {
 	app.StaticWeb("/proof", "./uploads")
 
 	app.Run(
-		iris.Addr("localhost:8080"),
+		iris.Addr(":"+os.Getenv("PORT")),
 		iris.WithoutVersionChecker,
 		iris.WithoutServerError(iris.ErrServerClosed),
 		iris.WithOptimizations,

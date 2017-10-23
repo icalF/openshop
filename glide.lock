@@ -1,5 +1,5 @@
-hash: 8498190dc973344015f17566ceee319a1cdd909804c1a8bd885f557ad6c282ef
-updated: 2017-10-22T02:06:16.724730902+07:00
+hash: 0c2c3d62e33214c49dc05e209f520c58719454159f7751f2e24a63519f72a6e1
+updated: 2017-10-23T22:14:18.472692577+07:00
 imports:
 - name: github.com/aymerick/raymond
   version: 72acac2207479d21dd45898c2a4264246c818148
@@ -17,16 +17,18 @@ imports:
   version: f5faa72e73092639913f5833b75e1ac1d6bc7a63
 - name: github.com/flosch/pongo2
   version: 1f4be1efe3b3529b7e58861f75d70120a9567dc4
-- name: github.com/gpmgo/gopm
-  version: 7edb73a0f439c016ee40b6608bc271c7fc4462e9
+- name: github.com/go-playground/locales
+  version: e4cbcb5d0652150d40ad0646651076b6bd2be4f6
   subpackages:
-  - modules/log
-- name: github.com/imdario/mergo
-  version: 7fe0c75c13abdee74b09fcacef5ea1c6bba6a874
+  - currency
+- name: github.com/go-playground/universal-translator
+  version: 71201497bace774495daed26a3874fd339e0b538
 - name: github.com/iris-contrib/formBinder
   version: ad9fb86c356f971f30319c40ddbdcf72129a2791
 - name: github.com/jinzhu/gorm
   version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+  subpackages:
+  - dialects/postgres
 - name: github.com/jinzhu/inflection
   version: 1c35d901db3da928c72a72d8458480cc9ade058f
 - name: github.com/Joker/jade
@@ -60,6 +62,7 @@ imports:
   - core/router/macro/interpreter/parser
   - core/router/macro/interpreter/token
   - core/router/node
+  - middleware/basicauth
   - middleware/logger
   - middleware/recover
   - mvc
@@ -83,6 +86,9 @@ imports:
   version: ae7887de9fa5d2db4eaa8174a7eff2c1ac00f2da
 - name: github.com/lib/pq
   version: b0d5024adb34b4122c6ee7eeb6ab511f7223222d
+  subpackages:
+  - hstore
+  - oid
 - name: github.com/microcosm-cc/bluemonday
   version: 68fecaef60268522d2ac3f0123cec9d3bcab7b6e
 - name: github.com/russross/blackfriday
@@ -105,6 +111,8 @@ imports:
   version: 8dbc5d05d6edcc104950cc299a1ce6641235bc86
   subpackages:
   - unix
+- name: gopkg.in/go-playground/validator.v8
+  version: 1304298bf10d085adec514b076772a79c9cadb6b
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 testImports: []

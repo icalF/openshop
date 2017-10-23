@@ -1,28 +1,24 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/kataras/iris"
-	"github.com/kataras/iris/sessions"
 
-	"github.com/icalF/openshop/services"
 	"github.com/icalF/openshop/models/datamodels"
+	"github.com/icalF/openshop/services"
+	"github.com/icalF/openshop/session"
 )
 
 type UserController struct {
 	BaseController
-	sess        *sessions.Sessions
-	UserService services.UserService
-}
-
-func NewUserController() *UserController {
-	return &UserController{
-		sess: sessions.New(sessions.Config{Cookie: "SHOPSESS_ID"}),
-	}
+	UserService    services.UserService
+	SessionWrapper session.Wrapper
 }
 
 // GET /user
 func (c *UserController) Get() (interface{}, int) {
-	sess := c.sess.Start(c.Ctx)
+	fmt.Print(c.SessionWrapper.GetSession())
+	sess := c.SessionWrapper.GetSession().Start(c.Ctx)
 
 	user, err := c.UserService.GetByToken(sess.ID())
 	if err != nil {
@@ -33,8 +29,8 @@ func (c *UserController) Get() (interface{}, int) {
 }
 
 // PUT /user
-func (c *UserController) Post() (interface{}, int) {
-	sess := c.sess.Start(c.Ctx)
+func (c *UserController) Put() (interface{}, int) {
+	sess := c.SessionWrapper.GetSession().Start(c.Ctx)
 
 	user := datamodels.User{}
 	err := c.Ctx.ReadJSON(&user)
