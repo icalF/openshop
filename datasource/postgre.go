@@ -9,7 +9,32 @@ import (
 )
 
 func NewPostgreConnection() (*gorm.DB, error) {
-	configText := fmt.Sprintf("host=%s user=%s dbname=%s port=5432 password=%s", os.Getenv("HOST"), os.Getenv("USER"), os.Getenv("DB"), os.Getenv("PASS"))
+	sslmode := "disable"
+	if envSslmode := os.Getenv("SSL_MODE"); envSslmode != "" {
+	    sslmode = envSslmode
+	}
+	
+	host := "localhost"
+	if envHost := os.Getenv("DB_HOST"); envHost != "" {
+	    host = envHost
+	}
+	
+	port := "5432"
+	if envPort := os.Getenv("DB_PORT"); envPort != "" {
+	    port = envPort
+	}
+	
+	user := "postgres"
+	if envUser := os.Getenv("DB_USER"); envUser != "" {
+	    user = envUser
+	}
+
+	db := "openshop"
+	if envDb := os.Getenv("DB_NAME"); envDb != "" {
+	    db = envDb
+	}
+
+	configText := fmt.Sprintf("sslmode=%s host=%s port=%s user=%s dbname=%s password=%s", sslmode, host, port, user, db, os.Getenv("DB_PASS"))
 	dbConn, err := gorm.Open("postgres", configText)
 	if err != nil {
 		return &gorm.DB{}, err
