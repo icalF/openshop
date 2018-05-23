@@ -1,8 +1,8 @@
 package services_test
 
 import (
-	"github.com/icalF/openshop/services"
-	"github.com/icalF/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/models/datamodels"
 )
 
 func NewTestOrderDetailService() services.OrderDetailService {

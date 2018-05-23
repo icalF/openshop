@@ -3,44 +3,48 @@ package services
 import (
 	"errors"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
 )
 
-type OrderService interface {
-	GetAll() []datamodels.Order
-	GetAllSubmitted() []datamodels.Order
-	GetByID(id int64) (datamodels.Order, bool)
-	GetByUserID(userId int64) []datamodels.Order
-	InsertOrUpdate(order datamodels.Order) (datamodels.Order, error)
-	InsertCoupon(id int64, code string) (bool, error)
-	Checkout(id int64) (datamodels.Payment, bool, error)
-	DeleteByID(id int64) bool
-	GetTotalAmount(order datamodels.Order) int
-}
 
-func NewOrderService(dao dao.OrderDAO,
-	paymentService PaymentService,
-	orderDetailService OrderDetailService,
-	productService ProductService,
-	couponService CouponService,
-) OrderService {
+func NewOrderManager(dao dao.OrderDAO) OrderManager {
 	return &orderService{
-		dao:                dao,
-		paymentService:     paymentService,
-		orderDetailService: orderDetailService,
-		productService:     productService,
-		couponService:      couponService,
+		dao: dao,
 	}
 }
 
+func NewOrderLalala(dao dao.OrderDAO,
+	paymentManager PaymentManager,
+	orderDetailManager OrderDetailManager,
+	productManager ProductManager,
+	couponManager CouponManager,
+	couponValidator CouponValidator,
+	purchaseValidator PurchaseValidator,
+) OrderLalala {
+	return &orderService{
+		dao:                dao,
+		paymentManager:     paymentManager,
+		orderDetailManager: orderDetailManager,
+		productManager:     productManager,
+		couponManager:      couponManager,
+		couponValidator:    couponValidator,
+		purchaseValidator:  purchaseValidator,
+	}
+}
+
+
 type orderService struct {
 	dao                dao.OrderDAO
-	paymentService     PaymentService
-	orderDetailService OrderDetailService
-	productService     ProductService
-	couponService      CouponService
+	paymentManager     PaymentManager
+	orderDetailManager OrderDetailManager
+	productManager     ProductManager
+	couponManager      CouponManager
+	couponValidator    CouponValidator
+	purchaseValidator  PurchaseValidator
 }
+
+
 
 func (s *orderService) GetAll() []datamodels.Order {
 	return s.dao.SelectMany(map[string]string{}, 0)
@@ -78,12 +82,12 @@ func (s *orderService) InsertCoupon(id int64, code string) (bool, error) {
 		return false, errors.New("coupon cannot be applied to submitted order")
 	}
 
-	coupon, found := s.couponService.GetByPromoCode(order.VoucherCode)
+	coupon, found := s.couponManager.GetByPromoCode(order.VoucherCode)
 	if !found {
 		return false, errors.New("promo code not found")
 	}
 
-	if valid := s.couponService.ValidateCoupon(coupon); !valid {
+	if valid := s.couponValidator.ValidateCoupon(coupon); !valid {
 		return true, errors.New("promo code does not valid")
 	}
 
@@ -101,14 +105,14 @@ func (s *orderService) Checkout(id int64) (datamodels.Payment, bool, error) {
 		return datamodels.Payment{}, false, errors.New("checkout cannot be done to submitted order")
 	}
 
-	if success := s.couponService.ValidateAndTakeCoupon(order.VoucherCode); !success {
+	if success := s.couponValidator.ValidateAndTakeCoupon(order.VoucherCode); !success {
 		return datamodels.Payment{}, true, errors.New("coupon code does not valid")
 	}
 	if success := s.ValidateOrderDetails(id); !success {
 		return datamodels.Payment{}, true, errors.New("product(s) cannot be purchased")
 	}
 
-	payment, err := s.paymentService.InsertOrUpdate(datamodels.NewPayment(id, s.GetTotalAmount(order)))
+	payment, err := s.paymentManager.InsertOrUpdate(datamodels.NewPayment(id, s.GetTotalAmount(order)))
 	if err != nil {
 		return datamodels.Payment{}, true, err
 	}
@@ -122,9 +126,9 @@ func (s *orderService) Checkout(id int64) (datamodels.Payment, bool, error) {
 }
 
 func (s *orderService) ValidateOrderDetails(orderId int64) bool {
-	orderDetails := s.orderDetailService.GetByOrderID(orderId)
+	orderDetails := s.orderDetailManager.GetByOrderID(orderId)
 	for _, orderDetail := range orderDetails {
-		if !s.orderDetailService.ValidatePurchase(orderDetail) {
+		if !s.purchaseValidator.ValidatePurchase(orderDetail) {
 			return false
 		}
 	}
@@ -138,21 +142,21 @@ func (s *orderService) DeleteByID(id int64) bool {
 }
 
 func (s *orderService) GetTotalAmount(order datamodels.Order) int {
-	orderDetails := s.orderDetailService.GetByOrderID(order.ID)
+	orderDetails := s.orderDetailManager.GetByOrderID(order.ID)
 	productIds := make([]int64, len(orderDetails))
 	for i, orderDetail := range orderDetails {
 		productIds[i] = orderDetail.ProductID
 	}
 
-	products := s.productService.GetByIDs(productIds)
-	productMap := s.productService.CreateProductMap(products)
+	products := s.productManager.GetByIDs(productIds)
+	productMap := s.productManager.CreateProductMap(products)
 
 	grossAmount := 0
 	for _, orderDetail := range orderDetails {
 		grossAmount += productMap[orderDetail.ProductID].Price * orderDetail.Qty
 	}
 
-	coupon, found := s.couponService.GetByPromoCode(order.VoucherCode)
+	coupon, found := s.couponManager.GetByPromoCode(order.VoucherCode)
 	if found {
 		if coupon.Percent > 0 {
 			grossAmount = int(grossAmount * (100 - coupon.Percent) / 100.0)

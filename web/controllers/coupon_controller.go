@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
 )
 
 type CouponController struct {
 	BaseController
-	Service services.CouponService
+	Service services.CouponManager
 }
 
 // GET /coupon/

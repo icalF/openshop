@@ -7,18 +7,21 @@ import (
 	"os"
 
 	"github.com/kataras/iris"
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
-	"github.com/icalF/openshop/session"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/session"
 )
 
 type OrderController struct {
 	BaseController
-	CouponService      services.CouponService
-	OrderService       services.OrderService
-	OrderDetailService services.OrderDetailService
-	PaymentService     services.PaymentService
-	UserService        services.UserService
+	CouponService      services.CouponManager
+	OrderService       services.OrderManager
+	OrderLalala services.OrderLalala
+	OrderDetailService services.OrderDetailManager
+	PurchaseValidator services.PurchaseValidator
+	CouponValidator services.CouponValidator
+	PaymentService     services.PaymentManager
+	UserService        services.UserManager
 	SessionWrapper     session.Wrapper
 }
 
@@ -93,7 +96,7 @@ func (c *OrderController) PostByCoupon(orderId int64) (interface{}, int) {
 		return nil, iris.StatusBadRequest
 	}
 
-	found, err := c.OrderService.InsertCoupon(orderId, code)
+	found, err := c.OrderLalala.InsertCoupon(orderId, code)
 	if !found {
 		return iris.Map{"message": err.Error()}, iris.StatusNotFound
 	}
@@ -122,7 +125,7 @@ func (c *OrderController) DeleteByCoupon(orderId int64) (interface{}, int) {
 
 // POST /order/{id: int}/checkout
 func (c *OrderController) PostByCheckout(orderId int64) (interface{}, int) {
-	payment, valid, err := c.OrderService.Checkout(orderId)
+	payment, valid, err := c.OrderLalala.Checkout(orderId)
 	if !valid {
 		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
 	}
@@ -207,7 +210,7 @@ func (c *OrderController) PostByDetail(orderId int64) (interface{}, int) {
 		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
 	}
 
-	if valid := c.OrderDetailService.ValidatePurchase(orderDetail); !valid {
+	if valid := c.PurchaseValidator.ValidatePurchase(orderDetail); !valid {
 		return iris.Map{"message": "input not valid"}, iris.StatusBadRequest
 	}
 
@@ -242,7 +245,7 @@ func (c *OrderController) PutByDetailBy(orderId int64, id int64) (interface{}, i
 		return iris.Map{"message": err.Error()}, iris.StatusBadRequest
 	}
 
-	if valid := c.OrderDetailService.ValidatePurchase(orderDetail); !valid {
+	if valid := c.PurchaseValidator.ValidatePurchase(orderDetail); !valid {
 		return iris.Map{"message": "input not valid"}, iris.StatusBadRequest
 	}
 

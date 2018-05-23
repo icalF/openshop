@@ -3,7 +3,7 @@ package dao
 import (
 	"github.com/jinzhu/gorm"
 
-	"github.com/icalF/openshop/models/datamodels"
+	"github.com/koneko096/openshop/models/datamodels"
 )
 
 type ProductDAO interface {

@@ -1,29 +1,23 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
 )
 
-type ProductService interface {
-	GetAll() []datamodels.Product
-	GetAllPurchasable() []datamodels.Product
-	GetByID(id int64) (datamodels.Product, bool)
-	GetByIDs(ids []int64) []datamodels.Product
-	InsertOrUpdate(product datamodels.Product) (datamodels.Product, error)
-	DeleteByID(id int64) bool
-	CreateProductMap(products []datamodels.Product) map[int64]datamodels.Product
-}
 
-func NewProductService(dao dao.ProductDAO) ProductService {
+func NewProductManager(dao dao.ProductDAO) ProductManager {
 	return &productService{
 		dao: dao,
 	}
 }
 
+
 type productService struct {
 	dao dao.ProductDAO
 }
+
+
 
 func (s *productService) GetAll() []datamodels.Product {
 	return s.dao.SelectMany(map[string]string{}, 0, 0)

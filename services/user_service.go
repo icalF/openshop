@@ -1,27 +1,23 @@
 package services
 
 import (
-	"github.com/icalF/openshop/dao"
-	"github.com/icalF/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
 )
 
-type UserService interface {
-	GetAll() []datamodels.User
-	GetByID(id int64) (datamodels.User, bool)
-	GetByToken(token string) (datamodels.User, error)
-	InsertOrUpdate(user datamodels.User) (datamodels.User, error)
-	DeleteByID(id int64) bool
-}
 
-func NewUserService(dao dao.UserDAO) UserService {
+func NewUserManager(dao dao.UserDAO) UserManager {
 	return &userService{
 		dao: dao,
 	}
 }
 
+
 type userService struct {
 	dao dao.UserDAO
 }
+
+
 
 func (s *userService) GetAll() []datamodels.User {
 	return s.dao.SelectMany(map[string]string{}, 1)

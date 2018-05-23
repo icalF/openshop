@@ -3,28 +3,29 @@ package services
 import (
 	"errors"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
 )
 
-type PaymentService interface {
-	GetAll() []datamodels.Payment
-	GetByID(id int64) (datamodels.Payment, bool)
-	GetByOrderID(orderId int64) (datamodels.Payment, bool)
-	InsertOrUpdate(payment datamodels.Payment) (datamodels.Payment, error)
-	UpdatePaymentProof(orderId int64, filename string) (bool, error)
-	DeleteByID(id int64) bool
-}
 
-func NewPaymentService(dao dao.PaymentDAO) PaymentService {
+func NewPaymentManager(dao dao.PaymentDAO) PaymentManager {
 	return &paymentService{
 		dao: dao,
 	}
 }
 
+func NewPaymentProofManager(dao dao.PaymentDAO) PaymentProofManager {
+	return &paymentService{
+		dao: dao,
+	}
+}
+
+
 type paymentService struct {
 	dao dao.PaymentDAO
 }
+
+
 
 func (s *paymentService) GetAll() []datamodels.Payment {
 	return s.dao.SelectMany(map[string]string{}, 0)

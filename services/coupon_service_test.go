@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
 )
 
 func TestCouponService_ValidateCoupon(t *testing.T) {

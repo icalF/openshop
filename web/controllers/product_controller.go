@@ -3,13 +3,13 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
 )
 
 type ProductController struct {
 	BaseController
-	Service services.ProductService
+	Service services.ProductManager
 }
 
 // GET /product/

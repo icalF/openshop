@@ -1,4 +1,4 @@
-package: github.com/icalF/openshop
+package: github.com/koneko096/openshop
 import:
 - package: github.com/kataras/iris
   version: ^8.5.2
@@ -7,3 +7,6 @@ import:
 - package: github.com/lib/pq
 - package: gopkg.in/go-playground/validator.v8
   version: ^9.8.0
+- package: go.uber.org/dig
+  version: v1.3.0
+- package: github.com/hashicorp/go-version

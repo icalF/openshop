@@ -1,29 +1,27 @@
 package services
 
 import (
-	"github.com/icalF/openshop/dao"
-	"github.com/icalF/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
 )
 
-type OrderDetailService interface {
-	GetAll() []datamodels.OrderDetail
-	GetByID(id int64) (datamodels.OrderDetail, bool)
-	GetByOrderID(id int64) []datamodels.OrderDetail
-	InsertOrUpdate(orderDetail datamodels.OrderDetail) (datamodels.OrderDetail, error)
-	DeleteByID(id int64) bool
-	ValidatePurchase(orderDetail datamodels.OrderDetail) bool
-}
-
-func NewOrderDetailService(dao dao.OrderDetailDAO, productService ProductService) OrderDetailService {
+func NewOrderDetailManager(dao dao.OrderDetailDAO, productManager ProductManager) OrderDetailManager {
 	return &orderDetailService{
 		dao:            dao,
-		productService: productService,
+		productManager: productManager,
+	}
+}
+
+func NewPurchaseValidator(dao dao.OrderDetailDAO, productManager ProductManager) PurchaseValidator {
+	return &orderDetailService{
+		dao:            dao,
+		productManager: productManager,
 	}
 }
 
 type orderDetailService struct {
 	dao            dao.OrderDetailDAO
-	productService ProductService
+	productManager ProductManager
 }
 
 func (s *orderDetailService) GetAll() []datamodels.OrderDetail {
@@ -53,7 +51,7 @@ func (s *orderDetailService) DeleteByID(id int64) bool {
 }
 
 func (s *orderDetailService) ValidatePurchase(orderDetail datamodels.OrderDetail) bool {
-	product, found := s.productService.GetByID(orderDetail.ProductID)
+	product, found := s.productManager.GetByID(orderDetail.ProductID)
 	if !found {
 		return false
 	}

@@ -3,14 +3,14 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
-	"github.com/icalF/openshop/session"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/session"
 )
 
 type UserController struct {
 	BaseController
-	UserService    services.UserService
+	UserService    services.UserManager
 	SessionWrapper session.Wrapper
 }
 

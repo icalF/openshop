@@ -3,17 +3,17 @@ package controllers
 import (
 	"github.com/kataras/iris"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/services"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/services"
 )
 
 type AdminController struct {
 	BaseController
-	OrderService       services.OrderService
-	OrderDetailService services.OrderDetailService
-	PaymentService     services.PaymentService
-	ShipmentService    services.ShipmentService
-	UserService        services.UserService
+	OrderService       services.OrderManager
+	OrderDetailService services.OrderDetailManager
+	PaymentService     services.PaymentManager
+	ShipmentService    services.ShipmentManager
+	UserService        services.UserManager
 }
 
 // GET /admin/order

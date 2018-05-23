@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/icalF/openshop/models/datamodels"
+	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/jinzhu/gorm"
 )
 

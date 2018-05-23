@@ -1,28 +1,22 @@
 package services
 
 import (
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
 )
 
-type ShipmentService interface {
-	GetAll() []datamodels.Shipment
-	GetByID(id int64) (datamodels.Shipment, bool)
-	GetByOrderID(orderId int64) (datamodels.Shipment, bool)
-	GetByShippingCode(code string) (datamodels.Shipment, bool)
-	InsertOrUpdate(shipment datamodels.Shipment) (datamodels.Shipment, error)
-	DeleteByID(id int64) bool
-}
-
-func NewShipmentService(dao dao.ShipmentDAO) ShipmentService {
+func NewShipmentManager(dao dao.ShipmentDAO) ShipmentManager {
 	return &shipmentService{
 		dao: dao,
 	}
 }
 
+
 type shipmentService struct {
 	dao dao.ShipmentDAO
 }
+
+
 
 func (s *shipmentService) GetAll() []datamodels.Shipment {
 	return s.dao.SelectMany(map[string]string{}, 0)

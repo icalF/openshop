@@ -3,29 +3,28 @@ package services
 import (
 	"time"
 
-	"github.com/icalF/openshop/models/datamodels"
-	"github.com/icalF/openshop/dao"
+	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/dao"
 )
 
-type CouponService interface {
-	GetAll() []datamodels.Coupon
-	GetByID(id int64) (datamodels.Coupon, bool)
-	GetByPromoCode(code string) (datamodels.Coupon, bool)
-	InsertOrUpdate(coupon datamodels.Coupon) (datamodels.Coupon, error)
-	ValidateCoupon(coupon datamodels.Coupon) bool
-	ValidateAndTakeCoupon(code string) bool
-	DeleteByID(id int64) bool
-}
-
-func NewCouponService(dao dao.CouponDAO) CouponService {
+func NewCouponManager(dao dao.CouponDAO) CouponManager {
 	return &couponService{
 		dao: dao,
 	}
 }
 
+func NewCouponValidator(dao dao.CouponDAO) CouponValidator {
+	return &couponService{
+		dao: dao,
+	}
+}
+
+
 type couponService struct {
 	dao dao.CouponDAO
 }
+
+
 
 func (s *couponService) GetAll() []datamodels.Coupon {
 	return s.dao.SelectMany(map[string]string{}, 0)
