@@ -6,6 +6,12 @@ import (
 	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/koneko096/openshop/dao"
 	"github.com/koneko096/openshop/bussiness/usecases"
+
+	"encoding/binary"
+	"encoding/base64"
+	"os"
+	"io"
+	"mime/multipart"
 )
 
 
@@ -48,7 +54,25 @@ func (s *paymentService) InsertOrUpdate(payment datamodels.Payment) (datamodels.
 	return s.dao.InsertOrUpdate(payment)
 }
 
-func (s *paymentService) UpdatePaymentProof(orderId int64, filename string) (bool, error) {
+func (s *paymentService) UpdatePaymentProof(orderId int64, file multipart.File) (bool, error) {
+	bs := make([]byte, 8)
+	binary.LittleEndian.PutUint64(bs, uint64(orderId))
+	filename := base64.StdEncoding.EncodeToString(bs)
+
+	out, err := os.OpenFile(
+		"./uploads/"+filename,
+		os.O_WRONLY|os.O_CREATE,
+		0666,
+	)
+	if err != nil {
+		return false, errors.New(
+			"error while saving\n" + err.Error(),
+		)
+	}
+	defer out.Close()
+
+	io.Copy(out, file)
+
 	payment, found := s.dao.Select(map[string]string{
 		"order_id": string(orderId),
 	})
@@ -57,7 +81,7 @@ func (s *paymentService) UpdatePaymentProof(orderId int64, filename string) (boo
 	}
 
 	payment.Proof = filename
-	_, err := s.InsertOrUpdate(payment)
+	_, err = s.InsertOrUpdate(payment)
 	return true, err
 }
 

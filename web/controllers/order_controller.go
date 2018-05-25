@@ -1,11 +1,6 @@
 package controllers
 
 import (
-	"encoding/base64"
-	"encoding/binary"
-	"io"
-	"os"
-
 	"github.com/kataras/iris"
 	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/koneko096/openshop/bussiness/usecases"
@@ -14,15 +9,16 @@ import (
 
 type OrderController struct {
 	BaseController
-	CouponService      usecases.CouponManager
-	OrderService       usecases.OrderManager
-	OrderLalala        usecases.OrderLalala
-	OrderDetailService usecases.OrderDetailManager
-	PurchaseValidator  usecases.PurchaseValidator
-	CouponValidator    usecases.CouponValidator
-	PaymentService     usecases.PaymentManager
-	UserService        usecases.UserManager
-	SessionWrapper     session.Wrapper
+	CouponService       usecases.CouponManager
+	OrderService        usecases.OrderManager
+	OrderLalala         usecases.OrderLalala
+	OrderDetailService  usecases.OrderDetailManager
+	PurchaseValidator   usecases.PurchaseValidator
+	CouponValidator     usecases.CouponValidator
+	PaymentService      usecases.PaymentManager
+	PaymentProofService usecases.PaymentProofManager
+	UserService         usecases.UserManager
+	SessionWrapper      session.Wrapper
 }
 
 // GET /order
@@ -158,24 +154,9 @@ func (c *OrderController) PostByPaymentUpload(orderId int64) (interface{}, int) 
 			"info":    err.Error(),
 		}, iris.StatusInternalServerError
 	}
-
 	defer file.Close()
-	bs := make([]byte, 8)
-	binary.LittleEndian.PutUint64(bs, uint64(orderId))
-	filename := base64.StdEncoding.EncodeToString(bs)
 
-	out, err := os.OpenFile("./uploads/"+filename,
-		os.O_WRONLY|os.O_CREATE, 0666)
-
-	if err != nil {
-		return iris.Map{
-			"message": "error while saving",
-			"info":    err.Error(),
-		}, iris.StatusInternalServerError
-	}
-	defer out.Close()
-
-	found, err := c.PaymentService.UpdatePaymentProof(orderId, filename)
+	found, err := c.PaymentProofService.UpdatePaymentProof(orderId, file)
 	if err != nil {
 		statusCode := iris.StatusInternalServerError
 		if !found {
@@ -188,7 +169,6 @@ func (c *OrderController) PostByPaymentUpload(orderId int64) (interface{}, int) 
 		}, statusCode
 	}
 
-	io.Copy(out, file)
 	return iris.Map{"message": "uploading success"}, iris.StatusOK
 }
 
