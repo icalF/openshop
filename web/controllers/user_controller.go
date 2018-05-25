@@ -4,13 +4,13 @@ import (
 	"github.com/kataras/iris"
 
 	"github.com/koneko096/openshop/models/datamodels"
-	"github.com/koneko096/openshop/services"
-	"github.com/koneko096/openshop/session"
+	"github.com/koneko096/openshop/web/session"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 type UserController struct {
 	BaseController
-	UserService    services.UserManager
+	UserService    usecases.UserManager
 	SessionWrapper session.Wrapper
 }
 

@@ -3,10 +3,11 @@ package services
 import (
 	"github.com/koneko096/openshop/dao"
 	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 
-func NewUserManager(dao dao.UserDAO) UserManager {
+func NewUserManager(dao dao.UserDAO) usecases.UserManager {
 	return &userService{
 		dao: dao,
 	}

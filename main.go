@@ -3,20 +3,21 @@ package main
 import (
 	"os"
 
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-
-	"github.com/koneko096/openshop/web"
+	"github.com/koneko096/openshop/web/config"
 	"github.com/kataras/iris"
 )
 
 func main() {
-	//defer dbConn.Close()
+	container := config.BuildContainer()
 
-	container := web.BuildContainer()
+	port := "9090"
+	if os.Getenv("PORT") != "" {
+		port = os.Getenv("PORT")
+	}
 
 	err := container.Invoke(func(app *iris.Application) {
 		app.Run(
-			iris.Addr(":"+os.Getenv("PORT")),
+			iris.Addr(":"+port),
 			iris.WithoutVersionChecker,
 			iris.WithoutServerError(iris.ErrServerClosed),
 			iris.WithOptimizations,

@@ -5,23 +5,24 @@ import (
 
 	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/koneko096/openshop/dao"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 
-func NewOrderManager(dao dao.OrderDAO) OrderManager {
+func NewOrderManager(dao dao.OrderDAO) usecases.OrderManager {
 	return &orderService{
 		dao: dao,
 	}
 }
 
 func NewOrderLalala(dao dao.OrderDAO,
-	paymentManager PaymentManager,
-	orderDetailManager OrderDetailManager,
-	productManager ProductManager,
-	couponManager CouponManager,
-	couponValidator CouponValidator,
-	purchaseValidator PurchaseValidator,
-) OrderLalala {
+	paymentManager usecases.PaymentManager,
+	orderDetailManager usecases.OrderDetailManager,
+	productManager usecases.ProductManager,
+	couponManager usecases.CouponManager,
+	couponValidator usecases.CouponValidator,
+	purchaseValidator usecases.PurchaseValidator,
+) usecases.OrderLalala {
 	return &orderService{
 		dao:                dao,
 		paymentManager:     paymentManager,
@@ -36,12 +37,12 @@ func NewOrderLalala(dao dao.OrderDAO,
 
 type orderService struct {
 	dao                dao.OrderDAO
-	paymentManager     PaymentManager
-	orderDetailManager OrderDetailManager
-	productManager     ProductManager
-	couponManager      CouponManager
-	couponValidator    CouponValidator
-	purchaseValidator  PurchaseValidator
+	paymentManager     usecases.PaymentManager
+	orderDetailManager usecases.OrderDetailManager
+	productManager     usecases.ProductManager
+	couponManager      usecases.CouponManager
+	couponValidator    usecases.CouponValidator
+	purchaseValidator  usecases.PurchaseValidator
 }
 
 

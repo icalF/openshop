@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"github.com/koneko096/openshop/services"
 	"github.com/kataras/iris"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 type ShipmentController struct {
 	BaseController
-	ShipmentService services.ShipmentManager
+	ShipmentService usecases.ShipmentManager
 }
 
 // GET /shipment/{code: string}

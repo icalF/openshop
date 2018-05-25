@@ -4,16 +4,16 @@ import (
 	"github.com/kataras/iris"
 
 	"github.com/koneko096/openshop/models/datamodels"
-	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 type AdminController struct {
 	BaseController
-	OrderService       services.OrderManager
-	OrderDetailService services.OrderDetailManager
-	PaymentService     services.PaymentManager
-	ShipmentService    services.ShipmentManager
-	UserService        services.UserManager
+	OrderService       usecases.OrderManager
+	OrderDetailService usecases.OrderDetailManager
+	PaymentService     usecases.PaymentManager
+	ShipmentService    usecases.ShipmentManager
+	UserService        usecases.UserManager
 }
 
 // GET /admin/order

@@ -1,4 +1,4 @@
-package services
+package usecases
 
 import "github.com/koneko096/openshop/models/datamodels"
 

@@ -1,4 +1,4 @@
-package services_test
+package services
 
 import (
 	"github.com/koneko096/openshop/models/datamodels"

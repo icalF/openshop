@@ -4,16 +4,17 @@ import (
 	"time"
 
 	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/bussiness/usecases"
 	"github.com/koneko096/openshop/dao"
 )
 
-func NewCouponManager(dao dao.CouponDAO) CouponManager {
+func NewCouponManager(dao dao.CouponDAO) usecases.CouponManager {
 	return &couponService{
 		dao: dao,
 	}
 }
 
-func NewCouponValidator(dao dao.CouponDAO) CouponValidator {
+func NewCouponValidator(dao dao.CouponDAO) usecases.CouponValidator {
 	return &couponService{
 		dao: dao,
 	}

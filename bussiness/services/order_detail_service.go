@@ -3,16 +3,17 @@ package services
 import (
 	"github.com/koneko096/openshop/dao"
 	"github.com/koneko096/openshop/models/datamodels"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
-func NewOrderDetailManager(dao dao.OrderDetailDAO, productManager ProductManager) OrderDetailManager {
+func NewOrderDetailManager(dao dao.OrderDetailDAO, productManager usecases.ProductManager) usecases.OrderDetailManager {
 	return &orderDetailService{
 		dao:            dao,
 		productManager: productManager,
 	}
 }
 
-func NewPurchaseValidator(dao dao.OrderDetailDAO, productManager ProductManager) PurchaseValidator {
+func NewPurchaseValidator(dao dao.OrderDetailDAO, productManager usecases.ProductManager) usecases.PurchaseValidator {
 	return &orderDetailService{
 		dao:            dao,
 		productManager: productManager,
@@ -21,7 +22,7 @@ func NewPurchaseValidator(dao dao.OrderDetailDAO, productManager ProductManager)
 
 type orderDetailService struct {
 	dao            dao.OrderDetailDAO
-	productManager ProductManager
+	productManager usecases.ProductManager
 }
 
 func (s *orderDetailService) GetAll() []datamodels.OrderDetail {

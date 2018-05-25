@@ -3,9 +3,10 @@ package services
 import (
 	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/koneko096/openshop/dao"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
-func NewShipmentManager(dao dao.ShipmentDAO) ShipmentManager {
+func NewShipmentManager(dao dao.ShipmentDAO) usecases.ShipmentManager {
 	return &shipmentService{
 		dao: dao,
 	}

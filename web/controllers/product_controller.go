@@ -4,12 +4,12 @@ import (
 	"github.com/kataras/iris"
 
 	"github.com/koneko096/openshop/models/datamodels"
-	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 type ProductController struct {
 	BaseController
-	Service services.ProductManager
+	Service usecases.ProductManager
 }
 
 // GET /product/

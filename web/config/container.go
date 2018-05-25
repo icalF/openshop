@@ -1,25 +1,30 @@
-package web
+package config
 
 import (
 	"go.uber.org/dig"
+
 	"github.com/koneko096/openshop/dao"
 	"github.com/koneko096/openshop/datasource"
+
 	"github.com/jinzhu/gorm"
 	"github.com/kataras/iris"
+
 	"github.com/koneko096/openshop/web/controllers"
 	"github.com/koneko096/openshop/web/middleware"
-	"github.com/koneko096/openshop/services"
-	"github.com/koneko096/openshop/session"
+	"github.com/koneko096/openshop/web/session"
+
+	"github.com/koneko096/openshop/bussiness/services"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 func NewServer(
-	userManager services.UserManager,
-	couponManager services.CouponManager,
-	productManager services.ProductManager,
-	paymentManager services.PaymentManager,
-	shipmentManager services.ShipmentManager,
-	orderDetailManager services.OrderDetailManager,
-	orderLalala services.OrderLalala,
+	userManager usecases.UserManager,
+	couponManager usecases.CouponManager,
+	productManager usecases.ProductManager,
+	paymentManager usecases.PaymentManager,
+	shipmentManager usecases.ShipmentManager,
+	orderDetailManager usecases.OrderDetailManager,
+	orderLalala usecases.OrderLalala,
 	sessionWrapper session.Wrapper,
 ) *iris.Application {
 	app := iris.New()
@@ -65,7 +70,7 @@ func NewServer(
 func BuildContainer() *dig.Container {
 	container := dig.New()
 
-	container.Provide(func() (*gorm.DB, error){
+	container.Provide(func() (*gorm.DB, error) {
 		dbConn, err := datasource.NewPostgreConnection()
 		if err != nil {
 			panic(err)

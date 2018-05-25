@@ -1,5 +1,5 @@
-hash: 0c2c3d62e33214c49dc05e209f520c58719454159f7751f2e24a63519f72a6e1
-updated: 2017-10-23T22:14:18.472692577+07:00
+hash: 626405fc355963e742501fc532a5dd12abe928f36797446d36c9b95d518a9e49
+updated: 2018-05-23T23:33:13.442485932+07:00
 imports:
 - name: github.com/aymerick/raymond
   version: 72acac2207479d21dd45898c2a4264246c818148
@@ -7,6 +7,8 @@ imports:
   - ast
   - lexer
   - parser
+- name: github.com/boltdb/bolt
+  version: fd01fc79c553a8e99d512a07e8e0c63d4a3ccfc5
 - name: github.com/BurntSushi/toml
   version: a368813c5e648fee92e5f6c30e3944ff9d5e8895
 - name: github.com/eknkc/amber
@@ -23,10 +25,12 @@ imports:
   - currency
 - name: github.com/go-playground/universal-translator
   version: 71201497bace774495daed26a3874fd339e0b538
+- name: github.com/hashicorp/go-version
+  version: 23480c0665776210b5fbbac6eaaee40e3e6a96b7
 - name: github.com/iris-contrib/formBinder
   version: ad9fb86c356f971f30319c40ddbdcf72129a2791
 - name: github.com/jinzhu/gorm
-  version: 5174cc5c242a728b435ea2be8a2f7f998e15429b
+  version: 6ed508ec6a4ecb3531899a69cbc746ccf65a4166
   subpackages:
   - dialects/postgres
 - name: github.com/jinzhu/inflection
@@ -40,7 +44,7 @@ imports:
 - name: github.com/kataras/golog
   version: 2ed680e7b1f34147164fa8073373e14fce02ac30
 - name: github.com/kataras/iris
-  version: eeea656b255fbafab40daa247bd991072566ab88
+  version: a002600f35860cc9e68376d8749bf1986e778ceb
   subpackages:
   - cache
   - cache/cfg
@@ -53,6 +57,10 @@ imports:
   - core/errors
   - core/handlerconv
   - core/host
+  - core/maintenance
+  - core/maintenance/client
+  - core/maintenance/encoding
+  - core/maintenance/version
   - core/memstore
   - core/netutil
   - core/router
@@ -72,10 +80,16 @@ imports:
   - mvc/activator/model
   - mvc/activator/persistence
   - sessions
+  - sessions/sessiondb/boltdb
   - view
 - name: github.com/kataras/pio
   version: 825e39f34365e7db2c9fbc3692c16220e3bd7418
   subpackages:
+  - terminal
+- name: github.com/kataras/survey
+  version: 00934ae069eda15df26fa427ac393e67e239380c
+  subpackages:
+  - core
   - terminal
 - name: github.com/klauspost/compress
   version: f3dce52e0576655d55fd69e74b63da96ad1108f3
@@ -89,6 +103,12 @@ imports:
   subpackages:
   - hstore
   - oid
+- name: github.com/mattn/go-colorable
+  version: efa589957cd060542a26d2dd7832fd6a6c6c3ade
+- name: github.com/mattn/go-isatty
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+- name: github.com/mgutz/ansi
+  version: 9520e82c474b0a04dd04f8a40959027271bab992
 - name: github.com/microcosm-cc/bluemonday
   version: 68fecaef60268522d2ac3f0123cec9d3bcab7b6e
 - name: github.com/russross/blackfriday
@@ -97,6 +117,10 @@ imports:
   version: abc90934186a77966e2beeac62ed966aac0561d5
 - name: github.com/satori/go.uuid
   version: 5bf94b69c6b68ee1b541973bb8e1144db23a194b
+- name: go.uber.org/dig
+  version: d100de9c8cc8358591507951141bc107713ba671
+  subpackages:
+  - internal/digreflect
 - name: golang.org/x/crypto
   version: edd5e9b0879d13ee6970a50153d85b8fec9f7686
   subpackages:
@@ -112,7 +136,7 @@ imports:
   subpackages:
   - unix
 - name: gopkg.in/go-playground/validator.v8
-  version: 1304298bf10d085adec514b076772a79c9cadb6b
+  version: f28cb45dc0f0f406ba2015cdb59a5203ad220bc2
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 testImports: []

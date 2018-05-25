@@ -2,12 +2,12 @@ package controllers
 
 import (
 	"github.com/koneko096/openshop/models/datamodels"
-	"github.com/koneko096/openshop/services"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 type CouponController struct {
 	BaseController
-	Service services.CouponManager
+	Service usecases.CouponManager
 }
 
 // GET /coupon/

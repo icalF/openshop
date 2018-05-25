@@ -8,20 +8,20 @@ import (
 
 	"github.com/kataras/iris"
 	"github.com/koneko096/openshop/models/datamodels"
-	"github.com/koneko096/openshop/services"
-	"github.com/koneko096/openshop/session"
+	"github.com/koneko096/openshop/bussiness/usecases"
+	"github.com/koneko096/openshop/web/session"
 )
 
 type OrderController struct {
 	BaseController
-	CouponService      services.CouponManager
-	OrderService       services.OrderManager
-	OrderLalala services.OrderLalala
-	OrderDetailService services.OrderDetailManager
-	PurchaseValidator services.PurchaseValidator
-	CouponValidator services.CouponValidator
-	PaymentService     services.PaymentManager
-	UserService        services.UserManager
+	CouponService      usecases.CouponManager
+	OrderService       usecases.OrderManager
+	OrderLalala        usecases.OrderLalala
+	OrderDetailService usecases.OrderDetailManager
+	PurchaseValidator  usecases.PurchaseValidator
+	CouponValidator    usecases.CouponValidator
+	PaymentService     usecases.PaymentManager
+	UserService        usecases.UserManager
 	SessionWrapper     session.Wrapper
 }
 

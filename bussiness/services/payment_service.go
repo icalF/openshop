@@ -5,16 +5,17 @@ import (
 
 	"github.com/koneko096/openshop/models/datamodels"
 	"github.com/koneko096/openshop/dao"
+	"github.com/koneko096/openshop/bussiness/usecases"
 )
 
 
-func NewPaymentManager(dao dao.PaymentDAO) PaymentManager {
+func NewPaymentManager(dao dao.PaymentDAO) usecases.PaymentManager {
 	return &paymentService{
 		dao: dao,
 	}
 }
 
-func NewPaymentProofManager(dao dao.PaymentDAO) PaymentProofManager {
+func NewPaymentProofManager(dao dao.PaymentDAO) usecases.PaymentProofManager {
 	return &paymentService{
 		dao: dao,
 	}
