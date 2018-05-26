@@ -22,7 +22,7 @@ func NewOrderLalala(dao dao.OrderDAO,
 	couponManager usecases.CouponManager,
 	couponValidator usecases.CouponValidator,
 	purchaseValidator usecases.PurchaseValidator,
-) usecases.OrderLalala {
+) usecases.PurchaseManager {
 	return &orderService{
 		dao:                dao,
 		paymentManager:     paymentManager,
@@ -31,6 +31,18 @@ func NewOrderLalala(dao dao.OrderDAO,
 		couponManager:      couponManager,
 		couponValidator:    couponValidator,
 		purchaseValidator:  purchaseValidator,
+	}
+}
+
+func NewPriceCalculator(
+	orderDetailManager usecases.OrderDetailManager,
+	productManager usecases.ProductManager,
+	couponManager usecases.CouponManager,
+) usecases.PriceCalculator {
+	return &orderService{
+		orderDetailManager: orderDetailManager,
+		productManager:     productManager,
+		couponManager:      couponManager,
 	}
 }
 
@@ -152,18 +164,33 @@ func (s *orderService) GetTotalAmount(order datamodels.Order) int {
 	products := s.productManager.GetByIDs(productIds)
 	productMap := s.productManager.CreateProductMap(products)
 
+	coupon, found := s.couponManager.GetByPromoCode(order.VoucherCode)
+	if !found {
+		return s.GetTotalAmountByProductsAndCoupon(orderDetails, productMap, nil)
+	} else {
+		return s.GetTotalAmountByProductsAndCoupon(orderDetails, productMap, &coupon)
+	}
+}
+
+func (s* orderService) GetTotalAmountByProductsAndCoupon(
+	orderDetails []datamodels.OrderDetail,
+	productMap map[int64]datamodels.Product,
+	coupon *datamodels.Coupon,
+) int {
 	grossAmount := 0
 	for _, orderDetail := range orderDetails {
 		grossAmount += productMap[orderDetail.ProductID].Price * orderDetail.Qty
 	}
 
-	coupon, found := s.couponManager.GetByPromoCode(order.VoucherCode)
-	if found {
-		if coupon.Percent > 0 {
-			grossAmount = int(grossAmount * (100 - coupon.Percent) / 100.0)
-		} else {
-			grossAmount -= coupon.Nominal
-		}
+	if coupon == nil {
+		return grossAmount
 	}
-	return grossAmount
+
+	netAmount := grossAmount
+	if coupon.Percent > 0 {
+		netAmount = int(grossAmount * (100 - coupon.Percent) / 100.0)
+	} else {
+		netAmount -= coupon.Nominal
+	}
+	return netAmount
 }

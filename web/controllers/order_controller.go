@@ -11,7 +11,7 @@ type OrderController struct {
 	BaseController
 	CouponService       usecases.CouponManager
 	OrderService        usecases.OrderManager
-	OrderLalala         usecases.OrderLalala
+	OrderLalala         usecases.PurchaseManager
 	OrderDetailService  usecases.OrderDetailManager
 	PurchaseValidator   usecases.PurchaseValidator
 	CouponValidator     usecases.CouponValidator

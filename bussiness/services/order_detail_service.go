@@ -57,6 +57,10 @@ func (s *orderDetailService) ValidatePurchase(orderDetail datamodels.OrderDetail
 		return false
 	}
 
+	return s.ValidatePurchaseByProduct(product, orderDetail)
+}
+
+func (s *orderDetailService) ValidatePurchaseByProduct(product datamodels.Product, orderDetail datamodels.OrderDetail) bool {
 	productQty := product.Qty
 	return productQty >= orderDetail.Qty
 }

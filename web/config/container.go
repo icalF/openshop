@@ -24,7 +24,7 @@ func NewServer(
 	paymentManager usecases.PaymentManager,
 	shipmentManager usecases.ShipmentManager,
 	orderDetailManager usecases.OrderDetailManager,
-	orderLalala usecases.OrderLalala,
+	orderLalala usecases.PurchaseManager,
 	sessionWrapper session.Wrapper,
 ) *iris.Application {
 	app := iris.New()
